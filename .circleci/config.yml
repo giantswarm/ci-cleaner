@@ -4,6 +4,7 @@ deploy: &deploy
     - checkout
     - attach_workspace:
         at: .
+    - run: ./scripts/credentials.sh ${TYPE}
 
     - run: ./scripts/dependencies.sh
 
@@ -32,15 +33,11 @@ jobs:
   deployHost:
     environment:
       TYPE: "host"
-      AWS_ACCESS_KEY_ID: ${HOST_AWS_ACCESS_KEY_ID}
-      AWS_SECRET_ACCESS_KEY: ${HOST_AWS_SECRET_ACCESS_KEY}
     <<: *deploy
 
   deployGuest:
     environment:
       TYPE: "guest"
-      AWS_ACCESS_KEY_ID: ${GUEST_AWS_ACCESS_KEY_ID}
-      AWS_SECRET_ACCESS_KEY: ${GUEST_AWS_SECRET_ACCESS_KEY}
     <<: *deploy
 
 
