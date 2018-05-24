@@ -11,6 +11,3 @@ Resources:
           Type: Schedule
           Properties:
             Schedule: rate(1 hour)
-      Environment:
-        Variables:
-          S3_BUCKET: ci-cleaner-{{type}}
