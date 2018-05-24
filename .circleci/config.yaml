@@ -1,0 +1,71 @@
+deploy: &deploy
+    machine: true
+    steps:
+    - checkout
+    - attach_workspace:
+        at: .
+    - run:
+        name: Install dependencies
+        command: |
+          # pip
+          sudo apt remove -y --purge python-pip
+          curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+          sudo python ./get-pip.py
+
+          #sam
+          sudo pip install aws-sam-cli
+
+    - run: ./scripts/deploy.sh ${TYPE}
+
+
+version: 2
+jobs:
+  build:
+    machine: true
+    steps:
+    - checkout
+
+    - run: |
+        wget -q $(curl -sS -H "Authorization: token $RELEASE_TOKEN" https://api.github.com/repos/giantswarm/architect/releases/latest | grep browser_download_url | head -n 1 | cut -d '"' -f 4)
+        chmod +x ./architect
+        ./architect version
+
+    - run: ./architect build
+
+    - persist_to_workspace:
+        root: .
+        paths:
+        - ./aws-ci-cleaner
+
+  deployHost:
+    environment:
+      TYPE: "host"
+      AWS_ACCESS_KEY_ID: ${HOST_AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${HOST_AWS_SECRET_ACCESS_KEY}
+    <<: *deploy
+
+  deployGuest:
+    environment:
+      TYPE: "guest"
+      AWS_ACCESS_KEY_ID: ${GUEST_AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${GUEST_AWS_SECRET_ACCESS_KEY}
+    <<: *deploy
+
+
+workflows:
+  version: 2
+  build_e2e:
+    jobs:
+    - build
+    - deployGuest:
+        filters:
+          branches:
+            only: master
+        requires:
+        - build
+    - deployHost:
+        filters:
+          branches:
+            only: master
+        requires:
+        - build
