@@ -8,7 +8,7 @@ deploy: &deploy
         name: Install dependencies
         command: |
           # pip
-          sudo apt remove -y --purge python-pip && sudo apt autoremove
+          sudo apt remove -y --purge python-pip && sudo apt-get autoremove
           curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
           sudo python ./get-pip.py
           sudo -H pip install setuptools -U
