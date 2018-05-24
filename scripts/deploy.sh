@@ -1,12 +1,14 @@
 #!/bin/sh
 set +x
 
-. scripts/template.sh $1
+type=${1:-guest}
+
+. scripts/template.sh $type
 
 sam package \
     --template-file template.yaml \
     --output-template-file serverless-output.yaml \
-    --s3-bucket aws-ci-cleaner
+    --s3-bucket ci-cleaner-$type
 
 sam deploy \
     --template-file serverless-output.yaml \
