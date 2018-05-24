@@ -8,10 +8,13 @@ deploy: &deploy
         name: Install dependencies
         command: |
           # pip
-          sudo apt remove -y --purge python-pip
+          sudo apt remove -y --purge python-pip && sudo apt autoremove
           curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
           sudo python ./get-pip.py
           sudo -H pip install setuptools -U
+
+          # python-dev
+          sudo apt install -y python-dev
 
           #sam
           sudo -H pip install aws-sam-cli
