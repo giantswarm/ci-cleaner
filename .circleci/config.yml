@@ -17,7 +17,7 @@ deploy: &deploy
           sudo apt update && sudo apt install -y python-dev
 
           #sam
-          sudo apt remove python-six
+          sudo apt remove python-six python-yaml
           sudo -H pip install aws-sam-cli
 
     - run: ./scripts/deploy.sh ${TYPE}
