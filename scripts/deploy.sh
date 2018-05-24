@@ -4,7 +4,7 @@ set +x
 . scripts/template.sh $1
 
 sam package \
-    --template-file function.yaml \
+    --template-file template.yaml \
     --output-template-file serverless-output.yaml \
     --s3-bucket aws-ci-cleaner
 
