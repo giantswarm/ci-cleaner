@@ -11,9 +11,10 @@ deploy: &deploy
           sudo apt remove -y --purge python-pip
           curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
           sudo python ./get-pip.py
+          sudo -H pip install setuptools -U
 
           #sam
-          sudo pip install aws-sam-cli
+          sudo -H pip install aws-sam-cli
 
     - run: ./scripts/deploy.sh ${TYPE}
 
@@ -58,14 +59,14 @@ workflows:
     jobs:
     - build
     - deployGuest:
-        filters:
-          branches:
-            only: master
+        #filters:
+        #  branches:
+        #    only: master
         requires:
         - build
     - deployHost:
-        filters:
-          branches:
-            only: master
+        #filters:
+        #  branches:
+        #    only: master
         requires:
         - build
