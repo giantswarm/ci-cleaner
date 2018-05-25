@@ -46,9 +46,7 @@ workflows:
 
   buildPush:
     jobs:
-    - build:
-        filters:
-          branches:
+    - build
 
   cleanup:
     triggers:
@@ -56,8 +54,7 @@ workflows:
       cron: "0 * * * *"
       filters:
         branches:
-          only:
-          - master
+          only: fix-dependencies-install
 
     jobs:
     - build
