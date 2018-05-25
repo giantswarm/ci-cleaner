@@ -1,9 +1,11 @@
-deploy: &deploy
+clean: &clean
     machine: true
     steps:
     - checkout
+
     - attach_workspace:
         at: .
+
     - run: ./scripts/credentials.sh ${TYPE}
 
     - run: ./ci-cleaner aws --access-key-id ${AWS_ACCESS_KEY_ID} --secret-access-key ${AWS_SECRET_ACCESS_KEY} --region ${AWS_DEFAULT_REGION}
@@ -26,33 +28,40 @@ jobs:
     - persist_to_workspace:
         root: .
         paths:
-        - ./aws-ci-cleaner
+        - ./ci-cleaner
 
-  deployHost:
+  cleanHost:
     environment:
       TYPE: "host"
-    <<: *deploy
+    <<: *clean
 
-  deployGuest:
+  cleanGuest:
     environment:
       TYPE: "guest"
-    <<: *deploy
+    <<: *clean
 
 
 workflows:
   version: 2
-  build_e2e:
+
+  build:
     jobs:
     - build
-    - deployGuest:
-        #filters:
-        #  branches:
-        #    only: master
+
+  cleanup:
+    triggers:
+    - schedule:
+      cron: "0 * * * *"
+      filters:
+        branches:
+          only:
+            - master
+
+    jobs:
+    - build
+    - cleanGuest:
         requires:
         - build
-    - deployHost:
-        #filters:
-        #  branches:
-        #    only: master
+    - cleanHost:
         requires:
         - build
