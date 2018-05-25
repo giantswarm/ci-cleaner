@@ -2,16 +2,6 @@
 
 
 [[projects]]
-  name = "github.com/aws/aws-lambda-go"
-  packages = [
-    "lambda",
-    "lambda/messages",
-    "lambdacontext"
-  ]
-  revision = "4d30d0ff60440c2d0480a15747c96ee71c3c53d4"
-  version = "v1.2.0"
-
-[[projects]]
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -45,19 +35,82 @@
   version = "v1.13.54"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/giantswarm/microerror"
+  packages = ["."]
+  revision = "325932fa68e70dd4464598f11e2f710ac1aaec46"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/giantswarm/micrologger"
+  packages = [
+    ".",
+    "loggermeta"
+  ]
+  revision = "ad4de16de22043f947fdf6c587cbc2736456d33d"
+
+[[projects]]
   name = "github.com/go-ini/ini"
   packages = ["."]
   revision = "6529cf7c58879c08d927016dde4477f18a0634cb"
   version = "v1.36.0"
 
 [[projects]]
+  name = "github.com/go-kit/kit"
+  packages = ["log"]
+  revision = "4dc7be5d2d12881735283bcab7352178e190fc71"
+  version = "v0.6.0"
+
+[[projects]]
+  name = "github.com/go-logfmt/logfmt"
+  packages = ["."]
+  revision = "390ab7935ee28ec6b286364bba9b4dd6410cb3d5"
+  version = "v0.3.0"
+
+[[projects]]
+  name = "github.com/go-stack/stack"
+  packages = ["."]
+  revision = "259ab82a6cad3992b4e21ff5cac294ccb06474bc"
+  version = "v1.7.0"
+
+[[projects]]
+  name = "github.com/inconshreveable/mousetrap"
+  packages = ["."]
+  revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
+  version = "v1.0"
+
+[[projects]]
   name = "github.com/jmespath/go-jmespath"
   packages = ["."]
   revision = "0b12d6b5"
 
+[[projects]]
+  branch = "master"
+  name = "github.com/juju/errgo"
+  packages = ["."]
+  revision = "08cceb5d0b5331634b9826762a8fd53b29b86ad8"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/kr/logfmt"
+  packages = ["."]
+  revision = "b84e30acd515aadc4b783ad4ff83aff3299bdfe0"
+
+[[projects]]
+  name = "github.com/spf13/cobra"
+  packages = ["."]
+  revision = "ef82de70bb3f60c65fb8eebacbb2d122ef517385"
+  version = "v0.0.3"
+
+[[projects]]
+  name = "github.com/spf13/pflag"
+  packages = ["."]
+  revision = "583c0c0531f06d5278b7d917446061adc344b5cd"
+  version = "v1.0.1"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "6d92fda9a362ae5b87414b9b0bf361f36a3508d1ef407965c22243bfe6ae8cea"
+  inputs-digest = "e9d1f60a981bf82749d56e664bce230be35afd8d6bf06022703ef888134620c7"
   solver-name = "gps-cdcl"
   solver-version = 1

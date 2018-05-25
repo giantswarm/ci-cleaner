@@ -6,9 +6,7 @@ deploy: &deploy
         at: .
     - run: ./scripts/credentials.sh ${TYPE}
 
-    - run: ./scripts/dependencies.sh
-
-    - run: ./scripts/deploy.sh ${TYPE}
+    - run: ./ci-cleaner aws --access-key-id ${AWS_ACCESS_KEY_ID} --secret-access-key ${AWS_SECRET_ACCESS_KEY} --region ${AWS_DEFAULT_REGION}
 
 
 version: 2
