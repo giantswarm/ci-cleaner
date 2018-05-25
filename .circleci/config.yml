@@ -10,7 +10,10 @@ clean: &clean
 
     - run: ./ci-cleaner aws --access-key-id ${AWS_ACCESS_KEY_ID} --secret-access-key ${AWS_SECRET_ACCESS_KEY} --region ${AWS_DEFAULT_REGION}
 
-build: &build
+
+version: 2
+jobs:
+  build:
     machine: true
     steps:
     - checkout
@@ -27,15 +30,6 @@ build: &build
         paths:
         - ./ci-cleaner
 
-
-version: 2
-jobs:
-  buildPush:
-    <<: *build
-
-  buildSchedule:
-    <<: *build
-
   cleanHost:
     environment:
       TYPE: "host"
@@ -50,9 +44,9 @@ jobs:
 workflows:
   version: 2
 
-  build:
+  buildPush:
     jobs:
-    - buildPush
+    - build
 
   cleanup:
     triggers:
@@ -64,10 +58,10 @@ workflows:
           - master
 
     jobs:
-    - buildSchedule
+    - build
     - cleanGuest:
         requires:
-        - buildSchedule
+        - build
     - cleanHost:
         requires:
-        - buildSchedule
+        - build
