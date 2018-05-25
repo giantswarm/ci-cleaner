@@ -59,9 +59,3 @@ workflows:
 
     jobs:
     - build
-    - cleanGuest:
-        requires:
-        - build
-    - cleanHost:
-        requires:
-        - build
