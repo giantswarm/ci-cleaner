@@ -49,6 +49,12 @@ workflows:
     - build
 
   cleanup:
+    triggers:
+    - schedule:
+      cron: "0 * * * *"
+      filters:
+        branches:
+
     jobs:
     - build
     - cleanGuest:
