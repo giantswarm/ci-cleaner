@@ -50,11 +50,11 @@ workflows:
 
   cleanup:
     triggers:
-    - schedule:
-      cron: "0 * * * *"
-      filters:
-        branches:
-          only: fix-dependencies-install
+      - schedule:
+          cron: "0 * * * *"
+          filters:
+            branches:
+              only: master
 
     jobs:
     - build
