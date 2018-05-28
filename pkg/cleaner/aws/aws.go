@@ -5,59 +5,31 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 )
 
-const (
-	// gracePeriod represents the maximum time the CI resources are allowed to
-	// remain up. CI resources older than gracePeriod will be deleted.
-	gracePeriod = 90 * time.Minute
-)
-
 type Config struct {
-	AccessKeyID     string
-	SecretAccessKey string
-	Region          string
-
-	Logger *micrologger.MicroLogger
+	CFClient CFClient
+	Logger   *micrologger.MicroLogger
 }
 
 type Cleaner struct {
-	cfClient *cloudformation.CloudFormation
+	cfClient CFClient
 	logger   *micrologger.MicroLogger
 }
 
 func New(config *Config) (*Cleaner, error) {
-	if config.AccessKeyID == "" {
-		return nil, microerror.Maskf(invalidConfigError, "Access Key ID must not be empty")
+	if config.CFClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "CFClient must not be empty")
 	}
-	if config.SecretAccessKey == "" {
-		return nil, microerror.Maskf(invalidConfigError, "Secret Access Key  must not be empty")
-	}
-	if config.Region == "" {
-		return nil, microerror.Maskf(invalidConfigError, "Region must not be empty")
-	}
-
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "logger must not be empty")
 	}
 
-	awsCfg := &aws.Config{
-		Credentials: credentials.NewStaticCredentials(config.AccessKeyID, config.SecretAccessKey, ""),
-		Region:      aws.String(config.Region),
-	}
-	s, err := session.NewSession(awsCfg)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
 	cleaner := &Cleaner{
-		cfClient: cloudformation.New(s),
+		cfClient: config.CFClient,
 		logger:   config.Logger,
 	}
 

@@ -2,8 +2,12 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 
+	awsSDK "github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/cloudformation"
+	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/cobra"
 
@@ -14,7 +18,7 @@ var (
 	AwsCmd = &cobra.Command{
 		Use:   "aws",
 		Short: "cleanup leftover AWS CI resources",
-		Run:   runAws,
+		RunE:  runAws,
 	}
 )
 
@@ -39,24 +43,30 @@ func init() {
 	AwsCmd.Flags().StringVar(&region, "region", "", "Region.")
 }
 
-func runAws(cmd *cobra.Command, args []string) {
-	c := &aws.Config{
-		AccessKeyID:     accessKeyID,
-		SecretAccessKey: secretAccessKey,
-		Region:          region,
+func runAws(cmd *cobra.Command, args []string) error {
+	awsCfg := &awsSDK.Config{
+		Credentials: credentials.NewStaticCredentials(accessKeyID, secretAccessKey, ""),
+		Region:      awsSDK.String(region),
+	}
+	s, err := session.NewSession(awsCfg)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+	cfClient := cloudformation.New(s)
 
-		Logger: logger,
+	c := &aws.Config{
+		CFClient: cfClient,
+		Logger:   logger,
 	}
 
 	a, err := aws.New(c)
 	if err != nil {
-		logger.Log("level", "error", "message", "exiting with status 1 due to error", "stack", fmt.Sprintf("%#v", err))
-		os.Exit(1)
+		return microerror.Mask(err)
 	}
 
 	err = a.Clean()
 	if err != nil {
-		logger.Log("level", "error", "message", "exiting with status 1 due to error", "stack", fmt.Sprintf("%#v", err))
-		os.Exit(1)
+		return microerror.Mask(err)
 	}
+	return nil
 }
