@@ -13,6 +13,12 @@ import (
 	"github.com/giantswarm/micrologger"
 )
 
+const (
+	// gracePeriod represents the maximum time the CI resources are allowed to
+	// remain up. CI resources older than gracePeriod will be deleted.
+	gracePeriod = 90 * time.Minute
+)
+
 type Config struct {
 	AccessKeyID     string
 	SecretAccessKey string
@@ -94,7 +100,7 @@ func shouldBeDeleted(stack *cloudformation.Stack) bool {
 	timeDiff := now.Sub(*stack.CreationTime)
 
 	// do not delete recent stacks.
-	if timeDiff < 90*time.Minute {
+	if timeDiff < gracePeriod {
 		return false
 	}
 
