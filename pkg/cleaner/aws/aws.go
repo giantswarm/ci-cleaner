@@ -79,6 +79,7 @@ func shouldBeDeleted(stack *cloudformation.Stack) bool {
 	prefixes := []string{
 		"cluster-ci-",
 		"host-peer-ci-",
+		"e2e-",
 	}
 	for _, prefix := range prefixes {
 		if strings.HasPrefix(*stack.StackName, prefix) {

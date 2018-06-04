@@ -56,6 +56,22 @@ func TestShouldBeDeleted(t *testing.T) {
 			},
 			expected: true,
 		},
+		{
+			description: "recent cluster e2e stack should not be deleted",
+			stack: &cloudformation.Stack{
+				StackName:    aws.String("e2e-blblalal"),
+				CreationTime: &now,
+			},
+			expected: false,
+		},
+		{
+			description: "old cluster e2e stack should be deleted",
+			stack: &cloudformation.Stack{
+				StackName:    aws.String("e2e-blblalal"),
+				CreationTime: &twoHoursAgo,
+			},
+			expected: true,
+		},
 	}
 
 	for _, tc := range tcs {
