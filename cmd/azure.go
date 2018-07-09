@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"strings"
 
 	"github.com/Azure/azure-sdk-for-go/services/network/mgmt/2018-05-01/network"
 	"github.com/Azure/go-autorest/autorest"
@@ -24,17 +25,19 @@ var (
 var (
 	azureClientID       string
 	azureClientSecret   string
+	azureInstallations  string
+	azureLocation       string
 	azureSubscriptionID string
 	azureTenantID       string
-	azureLocation       string
 )
 
 func init() {
 	AzureCmd.Flags().StringVar(&azureClientID, "client-id", "", "Client ID.")
 	AzureCmd.Flags().StringVar(&azureClientSecret, "client-secret", "", "Client secret.")
+	AzureCmd.Flags().StringVar(&azureInstallations, "installations", "ghost,godsmack", "Comma separated list of installation names to cleanup.")
+	AzureCmd.Flags().StringVar(&azureLocation, "location", "", "Location.")
 	AzureCmd.Flags().StringVar(&azureSubscriptionID, "subscription-id", "", "Subscription ID.")
 	AzureCmd.Flags().StringVar(&azureTenantID, "tenant-id", "", "Tenant ID.")
-	AzureCmd.Flags().StringVar(&azureLocation, "location", "", "Location.")
 }
 
 func runAzure(cmd *cobra.Command, args []string) error {
@@ -63,6 +66,9 @@ func runAzure(cmd *cobra.Command, args []string) error {
 		c := pkgazure.CleanerConfig{
 			Logger: logger,
 			VirtualNetworkPeeringsClient: newVirtualNetworkPeeringsClient(azureSubscriptionID, servicePrincipalToken),
+			VirtualNetworksClient:        newVirtualNetworksClient(azureSubscriptionID, servicePrincipalToken),
+
+			Installations: strings.Split(azureInstallations, ","),
 		}
 
 		azureCleaner, err = pkgazure.NewCleaner(c)
@@ -81,6 +87,13 @@ func runAzure(cmd *cobra.Command, args []string) error {
 
 func newVirtualNetworkPeeringsClient(azureSubscriptionID string, servicePrincipalToken *adal.ServicePrincipalToken) *network.VirtualNetworkPeeringsClient {
 	c := network.NewVirtualNetworkPeeringsClient(azureSubscriptionID)
+	c.Authorizer = autorest.NewBearerAuthorizer(servicePrincipalToken)
+
+	return &c
+}
+
+func newVirtualNetworksClient(azureSubscriptionID string, servicePrincipalToken *adal.ServicePrincipalToken) *network.VirtualNetworksClient {
+	c := network.NewVirtualNetworksClient(azureSubscriptionID)
 	c.Authorizer = autorest.NewBearerAuthorizer(servicePrincipalToken)
 
 	return &c
