@@ -1,4 +1,4 @@
-clean: &clean
+cleanAWS: &cleanAWS
     machine: true
     steps:
     - checkout
@@ -6,7 +6,7 @@ clean: &clean
     - attach_workspace:
         at: .
 
-    - run: ./scripts/credentials.sh ${TYPE}
+    - run: ./scripts/aws_credentials.sh ${TYPE}
 
     - run: ./ci-cleaner aws --access-key-id ${AWS_ACCESS_KEY_ID} --secret-access-key ${AWS_SECRET_ACCESS_KEY} --region ${AWS_DEFAULT_REGION}
 
@@ -30,15 +30,15 @@ jobs:
         paths:
         - ./ci-cleaner
 
-  cleanHost:
+  cleanAWSHost:
     environment:
       TYPE: "host"
-    <<: *clean
+    <<: *cleanAWS
 
-  cleanGuest:
+  cleanAWSGuest:
     environment:
       TYPE: "guest"
-    <<: *clean
+    <<: *cleanAWS
 
 
 workflows:
@@ -58,9 +58,9 @@ workflows:
 
     jobs:
     - build
-    - cleanGuest:
+    - cleanAWSGuest:
         requires:
         - build
-    - cleanHost:
+    - cleanAWSHost:
         requires:
         - build
