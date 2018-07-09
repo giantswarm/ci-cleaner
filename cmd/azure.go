@@ -1,11 +1,16 @@
 package cmd
 
 import (
-	"fmt"
+	"context"
 
+	"github.com/Azure/azure-sdk-for-go/services/network/mgmt/2018-05-01/network"
+	"github.com/Azure/go-autorest/autorest"
+	"github.com/Azure/go-autorest/autorest/adal"
+	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/micrologger"
 	"github.com/spf13/cobra"
+
+	pkgazure "github.com/giantswarm/ci-cleaner/pkg/cleaner/azure"
 )
 
 var (
@@ -22,23 +27,9 @@ var (
 	azureSubscriptionID string
 	azureTenantID       string
 	azureLocation       string
-	logger              *micrologger.MicroLogger
 )
 
 func init() {
-	var err error
-
-	{
-		c := micrologger.Config{}
-
-		logger, err = micrologger.New(c)
-		if err != nil {
-			panic(fmt.Sprintf("%#v", err))
-		}
-	}
-
-	RootCmd.AddCommand(AzureCmd)
-
 	AzureCmd.Flags().StringVar(&azureClientID, "client-id", "", "Client ID.")
 	AzureCmd.Flags().StringVar(&azureClientSecret, "client-secret", "", "Client secret.")
 	AzureCmd.Flags().StringVar(&azureSubscriptionID, "subscription-id", "", "Subscription ID.")
@@ -49,7 +40,7 @@ func init() {
 func runAzure(cmd *cobra.Command, args []string) error {
 	var err error
 
-	var servicePrincipalToken string
+	var servicePrincipalToken *adal.ServicePrincipalToken
 	{
 		env, err := azure.EnvironmentFromName(azure.PublicCloud.Name)
 		if err != nil {
@@ -69,9 +60,9 @@ func runAzure(cmd *cobra.Command, args []string) error {
 
 	var azureCleaner *pkgazure.Cleaner
 	{
-		c := &pkgazure.CleanerConfig{
-			//TODO:   newTODOClient(azureSubscriptionID, servicePrincipalToken),
+		c := pkgazure.CleanerConfig{
 			Logger: logger,
+			VirtualNetworkPeeringsClient: newVirtualNetworkPeeringsClient(azureSubscriptionID, servicePrincipalToken),
 		}
 
 		azureCleaner, err = pkgazure.NewCleaner(c)
@@ -80,7 +71,7 @@ func runAzure(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	err = azureCleaner.Clean()
+	err = azureCleaner.Clean(context.Background())
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -88,9 +79,9 @@ func runAzure(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-//func newTODOClient(azureSubscriptionID string, servicePrincipalToken string) *TODO {
-//	c := compute.NewVirtualMachineScaleSetsClient(azureSubscriptionID)
-//	c.Authorizer = autorest.NewBearerAuthorizer(servicePrincipalToken)
-//
-//	return &c
-//}
+func newVirtualNetworkPeeringsClient(azureSubscriptionID string, servicePrincipalToken *adal.ServicePrincipalToken) *network.VirtualNetworkPeeringsClient {
+	c := network.NewVirtualNetworkPeeringsClient(azureSubscriptionID)
+	c.Authorizer = autorest.NewBearerAuthorizer(servicePrincipalToken)
+
+	return &c
+}
