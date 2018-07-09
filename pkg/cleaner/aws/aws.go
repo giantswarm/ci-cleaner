@@ -12,12 +12,12 @@ import (
 
 type Config struct {
 	CFClient CFClient
-	Logger   *micrologger.MicroLogger
+	Logger   micrologger.Logger
 }
 
 type Cleaner struct {
 	cfClient CFClient
-	logger   *micrologger.MicroLogger
+	logger   micrologger.Logger
 }
 
 func New(config *Config) (*Cleaner, error) {
