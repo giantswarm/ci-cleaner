@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/Azure/azure-sdk-for-go/services/network/mgmt/2018-05-01/network"
+	"github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2018-02-01/resources"
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/adal"
 	"github.com/Azure/go-autorest/autorest/azure"
@@ -64,7 +65,8 @@ func runAzure(cmd *cobra.Command, args []string) error {
 	var azureCleaner *pkgazure.Cleaner
 	{
 		c := pkgazure.CleanerConfig{
-			Logger: logger,
+			Logger:                       logger,
+			GroupsClient:                 newGroupsClient(azureSubscriptionID, servicePrincipalToken),
 			VirtualNetworkPeeringsClient: newVirtualNetworkPeeringsClient(azureSubscriptionID, servicePrincipalToken),
 			VirtualNetworksClient:        newVirtualNetworksClient(azureSubscriptionID, servicePrincipalToken),
 
@@ -83,6 +85,13 @@ func runAzure(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+func newGroupsClient(azureSubscriptionID string, servicePrincipalToken *adal.ServicePrincipalToken) *resources.GroupsClient {
+	c := resources.NewGroupsClient(azureSubscriptionID)
+	c.Authorizer = autorest.NewBearerAuthorizer(servicePrincipalToken)
+
+	return &c
 }
 
 func newVirtualNetworkPeeringsClient(azureSubscriptionID string, servicePrincipalToken *adal.ServicePrincipalToken) *network.VirtualNetworkPeeringsClient {
