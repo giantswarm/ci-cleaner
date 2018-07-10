@@ -5,6 +5,7 @@
   name = "github.com/Azure/azure-sdk-for-go"
   packages = [
     "services/network/mgmt/2018-05-01/network",
+    "services/resources/mgmt/2018-02-01/resources",
     "version"
   ]
   revision = "fbe7db0e3f9793ba3e5704efbab84f51436c136e"
@@ -54,8 +55,8 @@
     "service/cloudformation",
     "service/sts"
   ]
-  revision = "16cb9f62f8a8b7af4f38725567f5ce762e1d562b"
-  version = "v1.14.21"
+  revision = "66e86be40287fdef6990768b65f713f4bce11deb"
+  version = "v1.14.23"
 
 [[projects]]
   name = "github.com/dgrijalva/jwt-go"
@@ -140,6 +141,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "906d14b4dbb9f5b79d1ce3884d47cd4224702f88b67c34a37e13cf93614a14b3"
+  inputs-digest = "6d48acf8435e8842be9216004a0184222d70a68f8da1f5460e1fa3c210de2e08"
   solver-name = "gps-cdcl"
   solver-version = 1
