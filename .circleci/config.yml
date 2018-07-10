@@ -11,6 +11,19 @@ cleanAWS: &cleanAWS
     - run: ./ci-cleaner aws --access-key-id ${AWS_ACCESS_KEY_ID} --secret-access-key ${AWS_SECRET_ACCESS_KEY} --region ${AWS_DEFAULT_REGION}
 
 
+
+cleanAzure: &cleanAzure
+    machine: true
+    steps:
+    - checkout
+
+    - attach_workspace:
+        at: .
+
+    - run: ./ci-cleaner azure --client-id ${AZURE_CLIENT_ID} --client-secret ${AZURE_CLIENT_SECRET} --tenant-id ${AZURE_TENANT_ID} --subscription-id ${AZURE_SUBSCRIPTION_ID} --location ${AZURE_LOCATION}
+
+
+
 version: 2
 jobs:
   build:
@@ -40,6 +53,10 @@ jobs:
       TYPE: "guest"
     <<: *cleanAWS
 
+  cleanAzure:
+    <<: *cleanAzure
+
+
 
 workflows:
   version: 2
@@ -62,5 +79,8 @@ workflows:
         requires:
         - build
     - cleanAWSHost:
+        requires:
+        - build
+    - cleanAzure:
         requires:
         - build
