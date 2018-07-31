@@ -8,8 +8,8 @@
     "services/resources/mgmt/2018-02-01/resources",
     "version"
   ]
-  revision = "fbe7db0e3f9793ba3e5704efbab84f51436c136e"
-  version = "v18.0.0"
+  revision = "4e8cbbfb1aeab140cd0fa97fd16b64ee18c3ca6a"
+  version = "v19.1.0"
 
 [[projects]]
   name = "github.com/Azure/go-autorest"
@@ -19,10 +19,12 @@
     "autorest/azure",
     "autorest/date",
     "autorest/to",
-    "autorest/validation"
+    "autorest/validation",
+    "logger",
+    "version"
   ]
-  revision = "1f7cd6cfe0adea687ad44a512dfe76140f804318"
-  version = "v10.12.0"
+  revision = "dd94e014aaf16d1df746762e392aa201c1b4c461"
+  version = "v10.15.0"
 
 [[projects]]
   name = "github.com/aws/aws-sdk-go"
@@ -46,6 +48,7 @@
     "aws/signer/v4",
     "internal/sdkio",
     "internal/sdkrand",
+    "internal/sdkuri",
     "internal/shareddefaults",
     "private/protocol",
     "private/protocol/query",
@@ -55,8 +58,8 @@
     "service/cloudformation",
     "service/sts"
   ]
-  revision = "66e86be40287fdef6990768b65f713f4bce11deb"
-  version = "v1.14.23"
+  revision = "123c8c8326730972861f45fe2e6e7b1d64b4d487"
+  version = "v1.15.1"
 
 [[projects]]
   name = "github.com/dgrijalva/jwt-go"
@@ -68,7 +71,7 @@
   branch = "master"
   name = "github.com/giantswarm/microerror"
   packages = ["."]
-  revision = "325932fa68e70dd4464598f11e2f710ac1aaec46"
+  revision = "a8d5d4f526c526b4b773062958847fe7e0b7f449"
 
 [[projects]]
   branch = "master"
@@ -82,8 +85,8 @@
 [[projects]]
   name = "github.com/go-ini/ini"
   packages = ["."]
-  revision = "06f5f3d67269ccec1fe5fe4134ba6e982984f7f5"
-  version = "v1.37.0"
+  revision = "358ee7663966325963d4e8b2e1fbd570c5195153"
+  version = "v1.38.1"
 
 [[projects]]
   name = "github.com/go-kit/kit"
