@@ -5,7 +5,9 @@ import (
 	"github.com/giantswarm/microerror"
 )
 
-var resourceGroupNotFoundError = microerror.New("resource group not found")
+var resourceGroupNotFoundError = &microerror.Error{
+	Kind: "resourceGroupNotFoundError",
+}
 
 // IsResourceGroupNotFound asserts resourceGroupNotFoundError.
 func IsResourceGroupNotFound(err error) bool {
@@ -31,7 +33,9 @@ func IsResourceGroupNotFound(err error) bool {
 	return false
 }
 
-var invalidConfigError = microerror.New("invalid config")
+var invalidConfigError = &microerror.Error{
+	Kind: "invalidConfigError",
+}
 
 // IsInvalidConfig asserts invalidConfigError.
 func IsInvalidConfig(err error) bool {
