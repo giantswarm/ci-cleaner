@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/service/cloudformation"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 )
@@ -13,16 +14,21 @@ import (
 type Config struct {
 	CFClient CFClient
 	Logger   micrologger.Logger
+	S3Client S3Client
 }
 
 type Cleaner struct {
 	cfClient CFClient
 	logger   micrologger.Logger
+	s3Client S3Client
 }
 
 func New(config *Config) (*Cleaner, error) {
 	if config.CFClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "CFClient must not be empty")
+	}
+	if config.S3Client == nil {
+		return nil, microerror.Maskf(invalidConfigError, "S3Client must not be empty")
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "logger must not be empty")
@@ -31,12 +37,31 @@ func New(config *Config) (*Cleaner, error) {
 	cleaner := &Cleaner{
 		cfClient: config.CFClient,
 		logger:   config.Logger,
+		s3Client: config.S3Client,
 	}
 
 	return cleaner, nil
 }
 
 func (a *Cleaner) Clean() error {
+	type cleanerFn func() error
+
+	cleaners := []cleanerFn{
+		a.cleanStacks,
+		a.cleanBuckets,
+	}
+
+	for _, f := range cleaners {
+		err := f()
+		if err != nil {
+			return microerror.Mask(err)
+		}
+	}
+
+	return nil
+}
+
+func (a *Cleaner) cleanStacks() error {
 	input := &cloudformation.DescribeStacksInput{}
 	output, err := a.cfClient.DescribeStacks(input)
 	if err != nil {
@@ -45,7 +70,7 @@ func (a *Cleaner) Clean() error {
 
 	for _, stack := range output.Stacks {
 		a.logger.Log("level", "debug", "message", fmt.Sprintf("checking stack %q", *stack.StackName))
-		if shouldBeDeleted(stack) {
+		if stackShouldBeDeleted(stack) {
 			a.logger.Log("level", "debug", "message", fmt.Sprintf("stack %q should be deleted", *stack.StackName))
 			deleteStackInput := &cloudformation.DeleteStackInput{
 				StackName: stack.StackName,
@@ -62,7 +87,33 @@ func (a *Cleaner) Clean() error {
 	return nil
 }
 
-func shouldBeDeleted(stack *cloudformation.Stack) bool {
+func (a *Cleaner) cleanBuckets() error {
+	input := &s3.ListBucketsInput{}
+	output, err := a.s3Client.ListBuckets(input)
+	if err != nil {
+		return err
+	}
+	for _, bucket := range output.Buckets {
+		a.logger.Log("level", "debug", "message", fmt.Sprintf("checking bucket %q", *bucket.Name))
+		if bucketShouldBeDeleted(bucket) {
+			a.logger.Log("level", "debug", "message", fmt.Sprintf("bucket %q should be deleted", *bucket.Name))
+			deleteBucketInput := &s3.DeleteBucketInput{
+				Bucket: bucket.Name,
+			}
+			_, err := a.s3Client.DeleteBucket(deleteBucketInput)
+			if err != nil {
+				// do not return on error, try to continue deleting.
+				a.logger.Log("level", "debug", "message", fmt.Sprintf("could not delete bucket %q: %#v", *bucket.Name, err))
+			} else {
+				a.logger.Log("level", "debug", "message", fmt.Sprintf("bucket %q was deleted", *bucket.Name))
+			}
+		}
+	}
+
+	return nil
+}
+
+func stackShouldBeDeleted(stack *cloudformation.Stack) bool {
 	if stack.CreationTime == nil {
 		// bad formed stack, should be deleted
 		return true
@@ -83,6 +134,44 @@ func shouldBeDeleted(stack *cloudformation.Stack) bool {
 	}
 	for _, prefix := range prefixes {
 		if strings.HasPrefix(*stack.StackName, prefix) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func bucketShouldBeDeleted(bucket *s3.Bucket) bool {
+	if bucket.CreationDate == nil {
+		// bad formed bucket, should be deleted
+		return true
+	}
+
+	now := time.Now().UTC()
+	timeDiff := now.Sub(*bucket.CreationDate)
+
+	// do not delete recent buckets.
+	if timeDiff < gracePeriod {
+		return false
+	}
+
+	prefixes := []string{
+		"ci-cur-",
+		"ci-wip-",
+		"ci-clop-",
+	}
+	for _, prefix := range prefixes {
+		if strings.HasPrefix(*bucket.Name, prefix) {
+			return true
+		}
+	}
+	substrings := []string{
+		"g8s-ci-cur-",
+		"g8s-ci-wip-",
+		"g8s-ci-clop-",
+	}
+	for _, substring := range substrings {
+		if strings.Contains(*bucket.Name, substring) {
 			return true
 		}
 	}

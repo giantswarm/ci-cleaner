@@ -5,6 +5,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/giantswarm/microerror"
 	"github.com/spf13/cobra"
 
@@ -41,9 +42,11 @@ func runAws(cmd *cobra.Command, args []string) error {
 		return microerror.Mask(err)
 	}
 	cfClient := cloudformation.New(s)
+	s3Client := s3.New(s)
 
 	c := &aws.Config{
 		CFClient: cfClient,
+		S3Client: s3Client,
 		Logger:   logger,
 	}
 

@@ -51,11 +51,15 @@
     "internal/sdkuri",
     "internal/shareddefaults",
     "private/protocol",
+    "private/protocol/eventstream",
+    "private/protocol/eventstream/eventstreamapi",
     "private/protocol/query",
     "private/protocol/query/queryutil",
     "private/protocol/rest",
+    "private/protocol/restxml",
     "private/protocol/xml/xmlutil",
     "service/cloudformation",
+    "service/s3",
     "service/sts"
   ]
   revision = "123c8c8326730972861f45fe2e6e7b1d64b4d487"
@@ -144,6 +148,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "6d48acf8435e8842be9216004a0184222d70a68f8da1f5460e1fa3c210de2e08"
+  inputs-digest = "969c089289474b831e73bfd963e239b1fd4e049fd3fdf3fc3269c340dbbcdb14"
   solver-name = "gps-cdcl"
   solver-version = 1
