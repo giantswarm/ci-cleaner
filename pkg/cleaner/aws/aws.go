@@ -65,23 +65,24 @@ func (a *Cleaner) cleanStacks() error {
 	input := &cloudformation.DescribeStacksInput{}
 	output, err := a.cfClient.DescribeStacks(input)
 	if err != nil {
-		return err
+		return microerror.Mask(err)
 	}
 
 	for _, stack := range output.Stacks {
-		a.logger.Log("level", "debug", "message", fmt.Sprintf("checking stack %q", *stack.StackName))
-		if stackShouldBeDeleted(stack) {
-			a.logger.Log("level", "debug", "message", fmt.Sprintf("stack %q should be deleted", *stack.StackName))
-			deleteStackInput := &cloudformation.DeleteStackInput{
-				StackName: stack.StackName,
-			}
-			_, err := a.cfClient.DeleteStack(deleteStackInput)
-			if err != nil {
-				// do not return on error, try to continue deleting.
-				a.logger.Log("level", "debug", "message", fmt.Sprintf("could not delete stack %q: %#v", *stack.StackName, err))
-			} else {
-				a.logger.Log("level", "debug", "message", fmt.Sprintf("stack %q was deleted", *stack.StackName))
-			}
+		a.logger.Log("level", "debug", "message", fmt.Sprintf("checking stack %#q", *stack.StackName))
+		if !stackShouldBeDeleted(stack) {
+			continue
+		}
+		a.logger.Log("level", "debug", "message", fmt.Sprintf("found that stack %#q should be deleted", *stack.StackName))
+		deleteStackInput := &cloudformation.DeleteStackInput{
+			StackName: stack.StackName,
+		}
+		_, err := a.cfClient.DeleteStack(deleteStackInput)
+		if err != nil {
+			// do not return on error, try to continue deleting.
+			a.logger.Log("level", "debug", "message", fmt.Sprintf("failed deleting stack %#q: %#v", *stack.StackName, err))
+		} else {
+			a.logger.Log("level", "debug", "message", fmt.Sprintf("deleted stack %#q", *stack.StackName))
 		}
 	}
 	return nil
@@ -91,22 +92,23 @@ func (a *Cleaner) cleanBuckets() error {
 	input := &s3.ListBucketsInput{}
 	output, err := a.s3Client.ListBuckets(input)
 	if err != nil {
-		return err
+		return microerror.Mask(err)
 	}
 	for _, bucket := range output.Buckets {
-		a.logger.Log("level", "debug", "message", fmt.Sprintf("checking bucket %q", *bucket.Name))
-		if bucketShouldBeDeleted(bucket) {
-			a.logger.Log("level", "debug", "message", fmt.Sprintf("bucket %q should be deleted", *bucket.Name))
-			deleteBucketInput := &s3.DeleteBucketInput{
-				Bucket: bucket.Name,
-			}
-			_, err := a.s3Client.DeleteBucket(deleteBucketInput)
-			if err != nil {
-				// do not return on error, try to continue deleting.
-				a.logger.Log("level", "debug", "message", fmt.Sprintf("could not delete bucket %q: %#v", *bucket.Name, err))
-			} else {
-				a.logger.Log("level", "debug", "message", fmt.Sprintf("bucket %q was deleted", *bucket.Name))
-			}
+		a.logger.Log("level", "debug", "message", fmt.Sprintf("checking bucket %#q", *bucket.Name))
+		if !bucketShouldBeDeleted(bucket) {
+			continue
+		}
+		a.logger.Log("level", "debug", "message", fmt.Sprintf("found that bucket %#q should be deleted", *bucket.Name))
+		deleteBucketInput := &s3.DeleteBucketInput{
+			Bucket: bucket.Name,
+		}
+		_, err := a.s3Client.DeleteBucket(deleteBucketInput)
+		if err != nil {
+			// do not return on error, try to continue deleting.
+			a.logger.Log("level", "debug", "message", fmt.Sprintf("failed deleting bucket %#q: %#v", *bucket.Name, err))
+		} else {
+			a.logger.Log("level", "debug", "message", fmt.Sprintf("deleted bucket %#q", *bucket.Name))
 		}
 	}
 
