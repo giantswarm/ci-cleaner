@@ -9,9 +9,9 @@ import (
 	"github.com/giantswarm/microerror"
 )
 
-// CleanVirtualNetworkPeering delete virtual network peering
+// cleanVirtualNetworkPeering delete virtual network peering
 // leftover by e2e test on control plane.
-func (c Cleaner) CleanVirtualNetworkPeering(ctx context.Context) error {
+func (c Cleaner) cleanVirtualNetworkPeering(ctx context.Context) error {
 	for _, i := range c.installations {
 		r, err := c.virtualNetworksClient.List(ctx, i)
 		if err != nil {

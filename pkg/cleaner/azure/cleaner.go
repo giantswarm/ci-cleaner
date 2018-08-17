@@ -64,7 +64,7 @@ func NewCleaner(config CleanerConfig) (*Cleaner, error) {
 func (c *Cleaner) Clean(ctx context.Context) error {
 	c.logger.LogCtx(ctx, "level", "debug", "message", "starting Azure CI cleanup")
 
-	err := c.CleanVirtualNetworkPeering(ctx)
+	err := c.cleanVirtualNetworkPeering(ctx)
 	if err != nil {
 		return microerror.Mask(err)
 	}
