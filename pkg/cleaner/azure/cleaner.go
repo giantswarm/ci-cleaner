@@ -5,12 +5,14 @@ import (
 	"strings"
 
 	"github.com/Azure/azure-sdk-for-go/services/network/mgmt/2018-05-01/network"
+	"github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2018-03-01/insights"
 	"github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2018-02-01/resources"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 )
 
 type CleanerConfig struct {
+	ActivityLogsClient           *insights.ActivityLogsClient
 	GroupsClient                 *resources.GroupsClient
 	Logger                       micrologger.Logger
 	VirtualNetworkPeeringsClient *network.VirtualNetworkPeeringsClient
@@ -20,6 +22,7 @@ type CleanerConfig struct {
 }
 
 type Cleaner struct {
+	activityLogsClient           *insights.ActivityLogsClient
 	groupsClient                 *resources.GroupsClient
 	logger                       micrologger.Logger
 	virtualNetworkPeeringsClient *network.VirtualNetworkPeeringsClient
@@ -29,6 +32,9 @@ type Cleaner struct {
 }
 
 func NewCleaner(config CleanerConfig) (*Cleaner, error) {
+	if config.ActivityLogsClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ActivityLogsClient must not be empty", config)
+	}
 	if config.GroupsClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.GroupsClient must not be empty", config)
 	}
@@ -50,8 +56,9 @@ func NewCleaner(config CleanerConfig) (*Cleaner, error) {
 	}
 
 	c := &Cleaner{
-		groupsClient: config.GroupsClient,
-		logger:       config.Logger,
+		activityLogsClient: config.ActivityLogsClient,
+		groupsClient:       config.GroupsClient,
+		logger:             config.Logger,
 		virtualNetworkPeeringsClient: config.VirtualNetworkPeeringsClient,
 		virtualNetworksClient:        config.VirtualNetworksClient,
 
