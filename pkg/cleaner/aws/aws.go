@@ -100,10 +100,7 @@ func (a *Cleaner) cleanBuckets() error {
 			continue
 		}
 		a.logger.Log("level", "debug", "message", fmt.Sprintf("found that bucket %#q should be deleted", *bucket.Name))
-		deleteBucketInput := &s3.DeleteBucketInput{
-			Bucket: bucket.Name,
-		}
-		_, err := a.s3Client.DeleteBucket(deleteBucketInput)
+		err := a.deleteBucket(bucket.Name)
 		if err != nil {
 			// do not return on error, try to continue deleting.
 			a.logger.Log("level", "debug", "message", fmt.Sprintf("failed deleting bucket %#q: %#v", *bucket.Name, err))
@@ -111,7 +108,6 @@ func (a *Cleaner) cleanBuckets() error {
 			a.logger.Log("level", "debug", "message", fmt.Sprintf("deleted bucket %#q", *bucket.Name))
 		}
 	}
-
 	return nil
 }
 
@@ -179,4 +175,46 @@ func bucketShouldBeDeleted(bucket *s3.Bucket) bool {
 	}
 
 	return false
+}
+
+func (a *Cleaner) deleteBucket(name *string) error {
+	var repeat bool
+	for {
+		i := &s3.ListObjectsV2Input{
+			Bucket: name,
+		}
+		o, err := a.s3Client.ListObjectsV2(i)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		if o.IsTruncated != nil && *o.IsTruncated {
+			repeat = true
+		}
+		if len(o.Contents) == 0 {
+			break
+		}
+
+		for _, o := range o.Contents {
+			i := &s3.DeleteObjectInput{
+				Bucket: name,
+				Key:    o.Key,
+			}
+			_, err := a.s3Client.DeleteObject(i)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+		}
+
+		if !repeat {
+			break
+		}
+	}
+	deleteBucketInput := &s3.DeleteBucketInput{
+		Bucket: name,
+	}
+	_, err := a.s3Client.DeleteBucket(deleteBucketInput)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+	return nil
 }
