@@ -17,6 +17,8 @@ const (
 )
 
 func (c Cleaner) cleanResourceGroup(ctx context.Context) error {
+	var lastError error
+
 	// It would be more efficient here to use a filter like "startswith(name,'ci-') or startswith(name,'e2e')"
 	// but this does not seems to work now, see https://github.com/Azure/azure-sdk-for-go/issues/2480.
 	groupIter, err := c.groupsClient.ListComplete(ctx, "", nil)
@@ -34,6 +36,7 @@ func (c Cleaner) cleanResourceGroup(ctx context.Context) error {
 		shouldBeDeleted, err := c.groupShouldBeDeleted(ctx, group, deadLine)
 		if err != nil {
 			c.logger.Log("level", "debug", "message", fmt.Sprintf("skipping resource group %q due to error", *group.Name), "error", err.Error())
+			lastError = err
 			continue
 		}
 
@@ -41,7 +44,8 @@ func (c Cleaner) cleanResourceGroup(ctx context.Context) error {
 			respFuture, err := c.groupsClient.Delete(ctx, *group.Name)
 			if err != nil {
 				c.logger.Log("level", "error", "message", fmt.Sprintf("resource group %q deletion failed", *group.Name), "error", err.Error())
-				return microerror.Mask(err)
+				lastError = err
+				continue
 			}
 
 			res, err := c.groupsClient.DeleteResponder(respFuture.Response())
@@ -49,11 +53,16 @@ func (c Cleaner) cleanResourceGroup(ctx context.Context) error {
 				// fall through
 			} else if err != nil {
 				c.logger.Log("level", "error", "message", fmt.Sprintf("resource group %q deletion failed", *group.Name), "error", err.Error())
-				return microerror.Mask(err)
+				lastError = err
+				continue
 			}
 
 			c.logger.Log("level", "debug", "message", fmt.Sprintf("resource group %q deleted", *group.Name))
 		}
+	}
+
+	if lastError != nil {
+		return microerror.Mask(lastError)
 	}
 
 	return nil
