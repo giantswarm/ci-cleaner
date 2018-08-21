@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2018-02-01/resources"
@@ -61,7 +60,7 @@ func (c Cleaner) cleanResourceGroup(ctx context.Context) error {
 }
 
 func (c Cleaner) groupShouldBeDeleted(ctx context.Context, group resources.Group, since time.Time) (bool, error) {
-	if !groupHasTestNamePrefix(group) {
+	if !isCIResource(*group.Name) {
 		return false, nil
 	}
 
@@ -86,19 +85,4 @@ func (c Cleaner) groupHasActivity(ctx context.Context, group resources.Group, si
 
 	// NotDone returns true when eventIter contains events.
 	return eventIter.NotDone(), nil
-}
-
-// groupHasTestNamePrefix checks if resource group name has ci- or e2e prefix.
-func groupHasTestNamePrefix(group resources.Group) bool {
-	prefixes := []string{
-		"ci-",
-		"e2e",
-	}
-	for _, prefix := range prefixes {
-		if strings.HasPrefix(*group.Name, prefix) {
-			return true
-		}
-	}
-
-	return false
 }
