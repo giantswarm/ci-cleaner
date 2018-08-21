@@ -12,21 +12,23 @@ import (
 )
 
 type CleanerConfig struct {
-	ActivityLogsClient           *insights.ActivityLogsClient
-	GroupsClient                 *resources.GroupsClient
-	Logger                       micrologger.Logger
-	VirtualNetworkPeeringsClient *network.VirtualNetworkPeeringsClient
-	VirtualNetworksClient        *network.VirtualNetworksClient
+	ActivityLogsClient                     *insights.ActivityLogsClient
+	GroupsClient                           *resources.GroupsClient
+	Logger                                 micrologger.Logger
+	VirtualNetworksClient                  *network.VirtualNetworksClient
+	VirtualNetworkPeeringsClient           *network.VirtualNetworkPeeringsClient
+	VirtualNetworkGatewayConnectionsClient *network.VirtualNetworkGatewayConnectionsClient
 
 	Installations []string
 }
 
 type Cleaner struct {
-	activityLogsClient           *insights.ActivityLogsClient
-	groupsClient                 *resources.GroupsClient
-	logger                       micrologger.Logger
-	virtualNetworkPeeringsClient *network.VirtualNetworkPeeringsClient
-	virtualNetworksClient        *network.VirtualNetworksClient
+	activityLogsClient                     *insights.ActivityLogsClient
+	groupsClient                           *resources.GroupsClient
+	logger                                 micrologger.Logger
+	virtualNetworkPeeringsClient           *network.VirtualNetworkPeeringsClient
+	virtualNetworksClient                  *network.VirtualNetworksClient
+	virtualNetworkGatewayConnectionsClient *network.VirtualNetworkGatewayConnectionsClient
 
 	installations []string
 }
@@ -47,6 +49,9 @@ func NewCleaner(config CleanerConfig) (*Cleaner, error) {
 	if config.VirtualNetworksClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.VirtualNetworksClient must not be empty", config)
 	}
+	if config.VirtualNetworkGatewayConnectionsClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.VirtualNetworkGatewayConnectionsClient must not be empty", config)
+	}
 
 	if len(config.Installations) == 0 {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Installations must not be empty", config)
@@ -59,8 +64,9 @@ func NewCleaner(config CleanerConfig) (*Cleaner, error) {
 		activityLogsClient: config.ActivityLogsClient,
 		groupsClient:       config.GroupsClient,
 		logger:             config.Logger,
-		virtualNetworkPeeringsClient: config.VirtualNetworkPeeringsClient,
-		virtualNetworksClient:        config.VirtualNetworksClient,
+		virtualNetworkPeeringsClient:           config.VirtualNetworkPeeringsClient,
+		virtualNetworksClient:                  config.VirtualNetworksClient,
+		virtualNetworkGatewayConnectionsClient: config.VirtualNetworkGatewayConnectionsClient,
 
 		installations: config.Installations,
 	}
