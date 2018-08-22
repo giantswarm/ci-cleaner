@@ -31,19 +31,22 @@ func (c Cleaner) cleanResourceGroup(ctx context.Context) error {
 	for ; groupIter.NotDone(); groupIter.Next() {
 		group := groupIter.Value()
 
-		c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking resource group %q", *group.Name))
+		c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("check resource group %q", *group.Name))
 
 		shouldBeDeleted, err := c.groupShouldBeDeleted(ctx, group, deadLine)
 		if err != nil {
-			c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("skipping resource group %q due to error", *group.Name), "error", err.Error())
+			c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("failed to check resource group %q", *group.Name), "error", err.Error())
+			r.logger.LogCtx(ctx, "level", "debug", "message", "skipping")
 			lastError = err
 			continue
 		}
 
 		if shouldBeDeleted {
+			c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring deletion of resource group %q", *group.Name))
+
 			respFuture, err := c.groupsClient.Delete(ctx, *group.Name)
 			if err != nil {
-				c.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("resource group %q deletion failed", *group.Name), "error", err.Error())
+				c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not ensure deletion for resource group %q ", *group.Name), "error", err.Error())
 				lastError = err
 				continue
 			}
@@ -52,12 +55,12 @@ func (c Cleaner) cleanResourceGroup(ctx context.Context) error {
 			if res.Response != nil && res.StatusCode == http.StatusNotFound {
 				// fall through
 			} else if err != nil {
-				c.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("resource group %q deletion failed", *group.Name), "error", err.Error())
+				c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not ensure deletion for resource group %q ", *group.Name), "error", err.Error())
 				lastError = err
 				continue
 			}
 
-			c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("resource group %q deleted", *group.Name))
+			c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensured deletion of resource group %q", *group.Name))
 		}
 	}
 
