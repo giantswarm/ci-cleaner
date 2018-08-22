@@ -72,8 +72,20 @@ func (a *Cleaner) cleanStacks() error {
 		a.logger.Log("level", "debug", "message", fmt.Sprintf("checking stack %#q", *stack.StackName))
 		if !stackShouldBeDeleted(stack) {
 			continue
-		}
 		a.logger.Log("level", "debug", "message", fmt.Sprintf("found that stack %#q should be deleted", *stack.StackName))
+		
+		if stack.EnableTerminationProtection {
+			enableTerminationProtection := false
+			updateTerminationProtection := &cloudformation.UpdateTerminationProtectionInput{
+				EnableTerminationProtection: &enableTerminationProtection,
+				StackName:                   stack.stackName,
+			}
+			_, err = a.cfClient.UpdateTerminationProtection(updateTerminationProtection)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+		}
+
 		deleteStackInput := &cloudformation.DeleteStackInput{
 			StackName: stack.StackName,
 		}
