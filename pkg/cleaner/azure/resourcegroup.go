@@ -35,7 +35,7 @@ func (c Cleaner) cleanResourceGroup(ctx context.Context) error {
 
 		shouldBeDeleted, err := c.groupShouldBeDeleted(ctx, group, deadLine)
 		if err != nil {
-			c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("failed to check resource group %q", *group.Name), "error", err.Error())
+			c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("failed to check resource group %q", *group.Name), "stack", microerror.Mask(err))
 			c.logger.LogCtx(ctx, "level", "debug", "message", "skipping")
 			lastError = err
 			continue
@@ -46,7 +46,7 @@ func (c Cleaner) cleanResourceGroup(ctx context.Context) error {
 
 			respFuture, err := c.groupsClient.Delete(ctx, *group.Name)
 			if err != nil {
-				c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not ensure deletion for resource group %q ", *group.Name), "error", err.Error())
+				c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not ensure deletion for resource group %q ", *group.Name), "stack", microerror.Mask(err))
 				lastError = err
 				continue
 			}
@@ -55,7 +55,7 @@ func (c Cleaner) cleanResourceGroup(ctx context.Context) error {
 			if res.Response != nil && res.StatusCode == http.StatusNotFound {
 				// fall through
 			} else if err != nil {
-				c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not ensure deletion for resource group %q ", *group.Name), "error", err.Error())
+				c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not ensure deletion for resource group %q ", *group.Name), "stack", microerror.Mask(err))
 				lastError = err
 				continue
 			}
