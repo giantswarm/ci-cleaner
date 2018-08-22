@@ -49,7 +49,7 @@ func (c Cleaner) cleanVPNConnection(ctx context.Context) error {
 
 				resFuture, err := c.virtualNetworkGatewayConnectionsClient.Delete(ctx, i, *connection.Name)
 				if err != nil {
-					c.logger.Log("level", "error", "message", fmt.Sprintf("did not ensure deletion of vpn connection %q", *connection.Name), "error", microerror.Mask(err))
+					c.logger.Log("level", "error", "message", fmt.Sprintf("did not ensure deletion of vpn connection %q", *connection.Name), "stack", fmt.Sprintf("%#v", microerror.Mask(err)))
 					lastError = err
 					continue
 				}
@@ -58,7 +58,7 @@ func (c Cleaner) cleanVPNConnection(ctx context.Context) error {
 				if res.Response != nil && res.StatusCode == http.StatusNotFound {
 					// fall through
 				} else if err != nil {
-					c.logger.Log("level", "error", "message", fmt.Sprintf("did not ensure deletion of vpn connection %q", *connection.Name), "error", microerror.Mask(err))
+					c.logger.Log("level", "error", "message", fmt.Sprintf("did not ensure deletion of vpn connection %q", *connection.Name), "stack", fmt.Sprintf("%#v", microerror.Mask(err)))
 					lastError = err
 					continue
 				}
