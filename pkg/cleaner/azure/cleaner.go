@@ -87,6 +87,11 @@ func (c *Cleaner) Clean(ctx context.Context) error {
 		return microerror.Mask(err)
 	}
 
+	err = c.cleanVPNConnection(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
 	c.logger.LogCtx(ctx, "level", "debug", "message", "finished Azure CI cleanup")
 
 	return nil
