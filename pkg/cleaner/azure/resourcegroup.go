@@ -92,9 +92,6 @@ func (c Cleaner) groupHasActivity(ctx context.Context, group resources.Group, si
 		return false, microerror.Mask(err)
 	}
 
-	// event := eventIter.Value()
-	// c.logger.Log("level", "debug", "message", fmt.Sprintf("resource group event: %s %s at %s", *event.OperationName.LocalizedValue, *event.Status.LocalizedValue, event.EventTimestamp.String()))
-
 	// NotDone returns true when eventIter contains events.
 	return eventIter.NotDone(), nil
 }
