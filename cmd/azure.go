@@ -66,11 +66,12 @@ func runAzure(cmd *cobra.Command, args []string) error {
 	var azureCleaner *pkgazure.Cleaner
 	{
 		c := pkgazure.CleanerConfig{
-			Logger:                       logger,
-			ActivityLogsClient:           newActivityLogsClient(azureSubscriptionID, servicePrincipalToken),
-			GroupsClient:                 newGroupsClient(azureSubscriptionID, servicePrincipalToken),
-			VirtualNetworkPeeringsClient: newVirtualNetworkPeeringsClient(azureSubscriptionID, servicePrincipalToken),
-			VirtualNetworksClient:        newVirtualNetworksClient(azureSubscriptionID, servicePrincipalToken),
+			Logger:                                 logger,
+			ActivityLogsClient:                     newActivityLogsClient(azureSubscriptionID, servicePrincipalToken),
+			GroupsClient:                           newGroupsClient(azureSubscriptionID, servicePrincipalToken),
+			VirtualNetworkPeeringsClient:           newVirtualNetworkPeeringsClient(azureSubscriptionID, servicePrincipalToken),
+			VirtualNetworksClient:                  newVirtualNetworksClient(azureSubscriptionID, servicePrincipalToken),
+			VirtualNetworkGatewayConnectionsClient: newVirtualNetworkGatewayConnectionsClient(azureSubscriptionID, servicePrincipalToken),
 
 			Installations: strings.Split(azureInstallations, ","),
 		}
@@ -112,6 +113,12 @@ func newVirtualNetworkPeeringsClient(azureSubscriptionID string, servicePrincipa
 
 func newVirtualNetworksClient(azureSubscriptionID string, servicePrincipalToken *adal.ServicePrincipalToken) *network.VirtualNetworksClient {
 	c := network.NewVirtualNetworksClient(azureSubscriptionID)
+	c.Authorizer = autorest.NewBearerAuthorizer(servicePrincipalToken)
+
+	return &c
+}
+func newVirtualNetworkGatewayConnectionsClient(azureSubscriptionID string, servicePrincipalToken *adal.ServicePrincipalToken) *network.VirtualNetworkGatewayConnectionsClient {
+	c := network.NewVirtualNetworkGatewayConnectionsClient(azureSubscriptionID)
 	c.Authorizer = autorest.NewBearerAuthorizer(servicePrincipalToken)
 
 	return &c
