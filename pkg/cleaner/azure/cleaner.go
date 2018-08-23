@@ -13,6 +13,8 @@ import (
 )
 
 type CleanerConfig struct {
+	Logger micrologger.Logger
+
 	ActivityLogsClient                     *insights.ActivityLogsClient
 	DNSRecordSetsClient                    *dns.RecordSetsClient
 	GroupsClient                           *resources.GroupsClient
@@ -21,7 +23,7 @@ type CleanerConfig struct {
 	VirtualNetworksClient                  *network.VirtualNetworksClient
 
 	Installations []string
-	Logger        micrologger.Logger
+	AzureLocation string
 }
 
 type Cleaner struct {
@@ -35,6 +37,7 @@ type Cleaner struct {
 	virtualNetworksClient                  *network.VirtualNetworksClient
 
 	installations []string
+	azureLocation string
 }
 
 func NewCleaner(config CleanerConfig) (*Cleaner, error) {
@@ -66,6 +69,9 @@ func NewCleaner(config CleanerConfig) (*Cleaner, error) {
 	if isAnyEmpty(config.Installations) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Installations must contain non empty items", config)
 	}
+	if len(config.AzureLocation) == 0 {
+		return nil, microerror.Maskf(invalidConfigError, "%T.AzureLocation must not be empty", config)
+	}
 
 	c := &Cleaner{
 		logger: config.Logger,
@@ -78,6 +84,7 @@ func NewCleaner(config CleanerConfig) (*Cleaner, error) {
 		virtualNetworksClient:                  config.VirtualNetworksClient,
 
 		installations: config.Installations,
+		azureLocation: config.AzureLocation,
 	}
 
 	return c, nil

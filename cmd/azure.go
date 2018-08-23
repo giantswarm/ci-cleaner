@@ -38,7 +38,7 @@ func init() {
 	AzureCmd.Flags().StringVar(&azureClientID, "client-id", "", "Client ID.")
 	AzureCmd.Flags().StringVar(&azureClientSecret, "client-secret", "", "Client secret.")
 	AzureCmd.Flags().StringVar(&azureInstallations, "installations", "ghost,godsmack", "Comma separated list of installation names to cleanup.")
-	AzureCmd.Flags().StringVar(&azureLocation, "location", "", "Location.")
+	AzureCmd.Flags().StringVar(&azureLocation, "location", "westeurope", "Location.")
 	AzureCmd.Flags().StringVar(&azureSubscriptionID, "subscription-id", "", "Subscription ID.")
 	AzureCmd.Flags().StringVar(&azureTenantID, "tenant-id", "", "Tenant ID.")
 }
@@ -77,6 +77,7 @@ func runAzure(cmd *cobra.Command, args []string) error {
 			VirtualNetworksClient:                  newVirtualNetworksClient(azureSubscriptionID, servicePrincipalToken),
 
 			Installations: strings.Split(azureInstallations, ","),
+			AzureLocation: azureLocation,
 		}
 
 		azureCleaner, err = pkgazure.NewCleaner(c)
