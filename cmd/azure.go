@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 
+	"github.com/Azure/azure-sdk-for-go/services/dns/mgmt/2017-10-01/dns"
 	"github.com/Azure/azure-sdk-for-go/services/network/mgmt/2018-05-01/network"
 	"github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2018-03-01/insights"
 	"github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2018-02-01/resources"
@@ -66,12 +67,14 @@ func runAzure(cmd *cobra.Command, args []string) error {
 	var azureCleaner *pkgazure.Cleaner
 	{
 		c := pkgazure.CleanerConfig{
-			Logger:                                 logger,
+			Logger: logger,
+
 			ActivityLogsClient:                     newActivityLogsClient(azureSubscriptionID, servicePrincipalToken),
+			DNSRecordSetsClient:                    newDNSRecordSetsClient(azureSubscriptionID, servicePrincipalToken),
 			GroupsClient:                           newGroupsClient(azureSubscriptionID, servicePrincipalToken),
 			VirtualNetworkPeeringsClient:           newVirtualNetworkPeeringsClient(azureSubscriptionID, servicePrincipalToken),
-			VirtualNetworksClient:                  newVirtualNetworksClient(azureSubscriptionID, servicePrincipalToken),
 			VirtualNetworkGatewayConnectionsClient: newVirtualNetworkGatewayConnectionsClient(azureSubscriptionID, servicePrincipalToken),
+			VirtualNetworksClient:                  newVirtualNetworksClient(azureSubscriptionID, servicePrincipalToken),
 
 			Installations: strings.Split(azureInstallations, ","),
 		}
@@ -92,6 +95,13 @@ func runAzure(cmd *cobra.Command, args []string) error {
 
 func newActivityLogsClient(azureSubscriptionID string, servicePrincipalToken *adal.ServicePrincipalToken) *insights.ActivityLogsClient {
 	c := insights.NewActivityLogsClient(azureSubscriptionID)
+	c.Authorizer = autorest.NewBearerAuthorizer(servicePrincipalToken)
+
+	return &c
+}
+
+func newDNSRecordSetsClient(azureSubscriptionID string, servicePrincipalToken *adal.ServicePrincipalToken) *dns.RecordSetsClient {
+	c := dns.NewRecordSetsClient(azureSubscriptionID)
 	c.Authorizer = autorest.NewBearerAuthorizer(servicePrincipalToken)
 
 	return &c
