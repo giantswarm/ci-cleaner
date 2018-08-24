@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2018-02-01/resources"
@@ -72,7 +73,7 @@ func (c Cleaner) cleanResourceGroup(ctx context.Context) error {
 }
 
 func (c Cleaner) groupShouldBeDeleted(ctx context.Context, group resources.Group, since time.Time) (bool, error) {
-	if !isCIResource(*group.Name) {
+	if !isCIResource(*group.Name) || !isTerraformCIResourceGroup(*group.Name) {
 		return false, nil
 	}
 
@@ -94,4 +95,9 @@ func (c Cleaner) groupHasActivity(ctx context.Context, group resources.Group, si
 
 	// NotDone returns true when eventIter contains events.
 	return eventIter.NotDone(), nil
+}
+
+// isTerraformCIResourceGroup check if resource group name was created by Terraform CI.
+func isTerraformCIResourceGroup(s string) bool {
+	return strings.HasPrefix(s, "e2e") && len(s) == 7
 }
