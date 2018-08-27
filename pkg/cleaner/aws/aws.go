@@ -83,7 +83,9 @@ func (a *Cleaner) cleanStacks() error {
 		}
 		_, err = a.cfClient.UpdateTerminationProtection(updateTerminationProtection)
 		if err != nil {
-			return microerror.Mask(err)
+			lastError = err
+			// do not return on error, try to continue deleting.
+			a.logger.Log("level", "debug", "message", fmt.Sprintf("failed disabling stack protection %#q: %#v", *stack.StackName, err))
 		}
 
 		deleteStackInput := &cloudformation.DeleteStackInput{
