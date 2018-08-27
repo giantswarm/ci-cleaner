@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 
+	"github.com/Azure/azure-sdk-for-go/services/dns/mgmt/2017-10-01/dns"
 	"github.com/Azure/azure-sdk-for-go/services/network/mgmt/2018-05-01/network"
 	"github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2018-03-01/insights"
 	"github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2018-02-01/resources"
@@ -12,45 +13,54 @@ import (
 )
 
 type CleanerConfig struct {
+	Logger micrologger.Logger
+
 	ActivityLogsClient                     *insights.ActivityLogsClient
+	DNSRecordSetsClient                    *dns.RecordSetsClient
 	GroupsClient                           *resources.GroupsClient
-	Logger                                 micrologger.Logger
-	VirtualNetworksClient                  *network.VirtualNetworksClient
-	VirtualNetworkPeeringsClient           *network.VirtualNetworkPeeringsClient
 	VirtualNetworkGatewayConnectionsClient *network.VirtualNetworkGatewayConnectionsClient
+	VirtualNetworkPeeringsClient           *network.VirtualNetworkPeeringsClient
+	VirtualNetworksClient                  *network.VirtualNetworksClient
 
 	Installations []string
+	AzureLocation string
 }
 
 type Cleaner struct {
+	logger micrologger.Logger
+
 	activityLogsClient                     *insights.ActivityLogsClient
+	dnsRecordSetsClient                    *dns.RecordSetsClient
 	groupsClient                           *resources.GroupsClient
-	logger                                 micrologger.Logger
+	virtualNetworkGatewayConnectionsClient *network.VirtualNetworkGatewayConnectionsClient
 	virtualNetworkPeeringsClient           *network.VirtualNetworkPeeringsClient
 	virtualNetworksClient                  *network.VirtualNetworksClient
-	virtualNetworkGatewayConnectionsClient *network.VirtualNetworkGatewayConnectionsClient
 
 	installations []string
+	azureLocation string
 }
 
 func NewCleaner(config CleanerConfig) (*Cleaner, error) {
+	if config.Logger == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
+	}
 	if config.ActivityLogsClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ActivityLogsClient must not be empty", config)
+	}
+	if config.DNSRecordSetsClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.DNSRecordSetsClient must not be empty", config)
 	}
 	if config.GroupsClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.GroupsClient must not be empty", config)
 	}
-	if config.Logger == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
-	}
 	if config.VirtualNetworkPeeringsClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.VirtualNetworkPeeringsClient must not be empty", config)
 	}
-	if config.VirtualNetworksClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.VirtualNetworksClient must not be empty", config)
-	}
 	if config.VirtualNetworkGatewayConnectionsClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.VirtualNetworkGatewayConnectionsClient must not be empty", config)
+	}
+	if config.VirtualNetworksClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.VirtualNetworksClient must not be empty", config)
 	}
 
 	if len(config.Installations) == 0 {
@@ -59,16 +69,22 @@ func NewCleaner(config CleanerConfig) (*Cleaner, error) {
 	if isAnyEmpty(config.Installations) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Installations must contain non empty items", config)
 	}
+	if len(config.AzureLocation) == 0 {
+		return nil, microerror.Maskf(invalidConfigError, "%T.AzureLocation must not be empty", config)
+	}
 
 	c := &Cleaner{
-		activityLogsClient: config.ActivityLogsClient,
-		groupsClient:       config.GroupsClient,
-		logger:             config.Logger,
+		logger: config.Logger,
+
+		activityLogsClient:                     config.ActivityLogsClient,
+		dnsRecordSetsClient:                    config.DNSRecordSetsClient,
+		groupsClient:                           config.GroupsClient,
 		virtualNetworkPeeringsClient:           config.VirtualNetworkPeeringsClient,
-		virtualNetworksClient:                  config.VirtualNetworksClient,
 		virtualNetworkGatewayConnectionsClient: config.VirtualNetworkGatewayConnectionsClient,
+		virtualNetworksClient:                  config.VirtualNetworksClient,
 
 		installations: config.Installations,
+		azureLocation: config.AzureLocation,
 	}
 
 	return c, nil
@@ -88,6 +104,11 @@ func (c *Cleaner) Clean(ctx context.Context) error {
 	}
 
 	err = c.cleanVPNConnection(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	err = c.cleanDNSRecordSet(ctx)
 	if err != nil {
 		return microerror.Mask(err)
 	}
