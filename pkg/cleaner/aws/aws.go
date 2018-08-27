@@ -68,6 +68,7 @@ func (a *Cleaner) cleanStacks() error {
 		return microerror.Mask(err)
 	}
 
+	var lastError error
 	for _, stack := range output.Stacks {
 		a.logger.Log("level", "debug", "message", fmt.Sprintf("checking stack %#q", *stack.StackName))
 		if !stackShouldBeDeleted(stack) {
@@ -75,16 +76,16 @@ func (a *Cleaner) cleanStacks() error {
 		}
 		a.logger.Log("level", "debug", "message", fmt.Sprintf("found that stack %#q should be deleted", *stack.StackName))
 
-		if stack.EnableTerminationProtection != nil && *stack.EnableTerminationProtection {
-			enableTerminationProtection := false
-			updateTerminationProtection := &cloudformation.UpdateTerminationProtectionInput{
-				EnableTerminationProtection: &enableTerminationProtection,
-				StackName:                   stack.StackName,
-			}
-			_, err = a.cfClient.UpdateTerminationProtection(updateTerminationProtection)
-			if err != nil {
-				return microerror.Mask(err)
-			}
+		enableTerminationProtection := false
+		updateTerminationProtection := &cloudformation.UpdateTerminationProtectionInput{
+			EnableTerminationProtection: &enableTerminationProtection,
+			StackName:                   stack.StackName,
+		}
+		_, err = a.cfClient.UpdateTerminationProtection(updateTerminationProtection)
+		if err != nil {
+			lastError = err
+			// do not return on error, try to continue deleting.
+			a.logger.Log("level", "debug", "message", fmt.Sprintf("failed disabling stack protection %#q: %#v", *stack.StackName, err))
 		}
 
 		deleteStackInput := &cloudformation.DeleteStackInput{
@@ -92,13 +93,14 @@ func (a *Cleaner) cleanStacks() error {
 		}
 		_, err := a.cfClient.DeleteStack(deleteStackInput)
 		if err != nil {
+			lastError = err
 			// do not return on error, try to continue deleting.
 			a.logger.Log("level", "debug", "message", fmt.Sprintf("failed deleting stack %#q: %#v", *stack.StackName, err))
 		} else {
 			a.logger.Log("level", "debug", "message", fmt.Sprintf("deleted stack %#q", *stack.StackName))
 		}
 	}
-	return nil
+	return lastError
 }
 
 func (a *Cleaner) cleanBuckets() error {
