@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 
+	"github.com/Azure/azure-sdk-for-go/services/dns/mgmt/2017-10-01/dns"
 	"github.com/Azure/azure-sdk-for-go/services/network/mgmt/2018-05-01/network"
 	"github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2018-03-01/insights"
 	"github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2018-02-01/resources"
@@ -37,7 +38,7 @@ func init() {
 	AzureCmd.Flags().StringVar(&azureClientID, "client-id", "", "Client ID.")
 	AzureCmd.Flags().StringVar(&azureClientSecret, "client-secret", "", "Client secret.")
 	AzureCmd.Flags().StringVar(&azureInstallations, "installations", "ghost,godsmack", "Comma separated list of installation names to cleanup.")
-	AzureCmd.Flags().StringVar(&azureLocation, "location", "", "Location.")
+	AzureCmd.Flags().StringVar(&azureLocation, "location", "westeurope", "Location.")
 	AzureCmd.Flags().StringVar(&azureSubscriptionID, "subscription-id", "", "Subscription ID.")
 	AzureCmd.Flags().StringVar(&azureTenantID, "tenant-id", "", "Tenant ID.")
 }
@@ -66,14 +67,17 @@ func runAzure(cmd *cobra.Command, args []string) error {
 	var azureCleaner *pkgazure.Cleaner
 	{
 		c := pkgazure.CleanerConfig{
-			Logger:                                 logger,
+			Logger: logger,
+
 			ActivityLogsClient:                     newActivityLogsClient(azureSubscriptionID, servicePrincipalToken),
+			DNSRecordSetsClient:                    newDNSRecordSetsClient(azureSubscriptionID, servicePrincipalToken),
 			GroupsClient:                           newGroupsClient(azureSubscriptionID, servicePrincipalToken),
 			VirtualNetworkPeeringsClient:           newVirtualNetworkPeeringsClient(azureSubscriptionID, servicePrincipalToken),
-			VirtualNetworksClient:                  newVirtualNetworksClient(azureSubscriptionID, servicePrincipalToken),
 			VirtualNetworkGatewayConnectionsClient: newVirtualNetworkGatewayConnectionsClient(azureSubscriptionID, servicePrincipalToken),
+			VirtualNetworksClient:                  newVirtualNetworksClient(azureSubscriptionID, servicePrincipalToken),
 
 			Installations: strings.Split(azureInstallations, ","),
+			AzureLocation: azureLocation,
 		}
 
 		azureCleaner, err = pkgazure.NewCleaner(c)
@@ -92,6 +96,13 @@ func runAzure(cmd *cobra.Command, args []string) error {
 
 func newActivityLogsClient(azureSubscriptionID string, servicePrincipalToken *adal.ServicePrincipalToken) *insights.ActivityLogsClient {
 	c := insights.NewActivityLogsClient(azureSubscriptionID)
+	c.Authorizer = autorest.NewBearerAuthorizer(servicePrincipalToken)
+
+	return &c
+}
+
+func newDNSRecordSetsClient(azureSubscriptionID string, servicePrincipalToken *adal.ServicePrincipalToken) *dns.RecordSetsClient {
+	c := dns.NewRecordSetsClient(azureSubscriptionID)
 	c.Authorizer = autorest.NewBearerAuthorizer(servicePrincipalToken)
 
 	return &c
