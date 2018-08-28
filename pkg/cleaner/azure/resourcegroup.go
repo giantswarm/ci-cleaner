@@ -99,5 +99,5 @@ func (c Cleaner) groupHasActivity(ctx context.Context, group resources.Group, si
 
 // isTerraformCIResourceGroup check if resource group name was created by Terraform CI.
 func isTerraformCIResourceGroup(s string) bool {
-	return strings.HasPrefix(s, "e2e") && len(s) == 7
+	return strings.HasPrefix(s, "e2eterraform")
 }
