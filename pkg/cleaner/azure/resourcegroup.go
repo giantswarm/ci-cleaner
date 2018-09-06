@@ -73,7 +73,7 @@ func (c Cleaner) cleanResourceGroup(ctx context.Context) error {
 }
 
 func (c Cleaner) groupShouldBeDeleted(ctx context.Context, group resources.Group, since time.Time) (bool, error) {
-	if !isCIResource(*group.Name) || !isTerraformCIResourceGroup(*group.Name) {
+	if !isCIResource(*group.Name) && !isTerraformCIResourceGroup(*group.Name) {
 		return false, nil
 	}
 
