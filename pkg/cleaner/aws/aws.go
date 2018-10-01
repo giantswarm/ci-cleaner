@@ -6,38 +6,45 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/service/cloudformation"
+	"github.com/aws/aws-sdk-go/service/route53"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 )
 
 type Config struct {
-	CFClient CFClient
-	Logger   micrologger.Logger
-	S3Client S3Client
+	CFClient      CFClient
+	Logger        micrologger.Logger
+	Route53Client Route53Client
+	S3Client      S3Client
 }
 
 type Cleaner struct {
-	cfClient CFClient
-	logger   micrologger.Logger
-	s3Client S3Client
+	cfClient      CFClient
+	logger        micrologger.Logger
+	route53Client Route53Client
+	s3Client      S3Client
 }
 
 func New(config *Config) (*Cleaner, error) {
 	if config.CFClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "CFClient must not be empty")
-	}
-	if config.S3Client == nil {
-		return nil, microerror.Maskf(invalidConfigError, "S3Client must not be empty")
+		return nil, microerror.Maskf(invalidConfigError, "%T.CFClient must not be empty", config)
 	}
 	if config.Logger == nil {
-		return nil, microerror.Maskf(invalidConfigError, "logger must not be empty")
+		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
+	}
+	if config.Route53Client == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Route53Client must not be empty", config)
+	}
+	if config.S3Client == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.S3Client must not be empty", config)
 	}
 
 	cleaner := &Cleaner{
-		cfClient: config.CFClient,
-		logger:   config.Logger,
-		s3Client: config.S3Client,
+		cfClient:      config.CFClient,
+		logger:        config.Logger,
+		route53Client: config.Route53Client,
+		s3Client:      config.S3Client,
 	}
 
 	return cleaner, nil
@@ -47,8 +54,10 @@ func (a *Cleaner) Clean() error {
 	type cleanerFn func() error
 
 	cleaners := []cleanerFn{
-		a.cleanStacks,
-		a.cleanBuckets,
+		// TODO enable before merge
+		//a.cleanStacks,
+		//a.cleanBuckets,
+		a.cleanHostedZones,
 	}
 
 	for _, f := range cleaners {
@@ -123,6 +132,40 @@ func (a *Cleaner) cleanBuckets() error {
 			a.logger.Log("level", "debug", "message", fmt.Sprintf("deleted bucket %#q", *bucket.Name))
 		}
 	}
+	return nil
+}
+
+func (a *Cleaner) cleanHostedZones() error {
+	var marker *string
+	for {
+		in := &route53.ListHostedZonesInput{
+			Marker: marker,
+		}
+
+		out, err := a.route53Client.ListHostedZones(in)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		for _, hz := range out.HostedZones {
+			if hz.Name == nil || hz.Id == nil {
+				continue
+			}
+
+			fmt.Printf("\n")
+			fmt.Printf("%#v\n", *hz.Id)
+			fmt.Printf("%#v\n", *hz.Name)
+			fmt.Printf("%#v\n", hz)
+			fmt.Printf("\n")
+		}
+
+		if out.IsTruncated == nil || !*out.IsTruncated {
+			break
+		} else {
+			marker = out.Marker
+		}
+	}
+
 	return nil
 }
 
