@@ -1,29 +1,3 @@
-cleanAWS: &cleanAWS
-    machine: true
-    steps:
-    - checkout
-
-    - attach_workspace:
-        at: .
-
-    - run: ./scripts/aws_credentials.sh ${TYPE}
-
-    - run: ./ci-cleaner aws --access-key-id ${AWS_ACCESS_KEY_ID} --secret-access-key ${AWS_SECRET_ACCESS_KEY} --region ${AWS_DEFAULT_REGION}
-
-
-
-cleanAzure: &cleanAzure
-    machine: true
-    steps:
-    - checkout
-
-    - attach_workspace:
-        at: .
-
-    - run: ./ci-cleaner azure --client-id ${AZURE_CLIENT_ID} --client-secret ${AZURE_CLIENT_SECRET} --tenant-id ${AZURE_TENANT_ID} --subscription-id ${AZURE_SUBSCRIPTION_ID} --location ${AZURE_LOCATION}
-
-
-
 version: 2
 jobs:
   build:
@@ -89,3 +63,28 @@ workflows:
     - cleanAzure:
         requires:
         - build
+
+cleanAWS: &cleanAWS
+    machine: true
+    steps:
+    - checkout
+
+    - attach_workspace:
+        at: .
+
+    - run: ./scripts/aws_credentials.sh ${TYPE}
+
+    - run: ./ci-cleaner aws --access-key-id ${AWS_ACCESS_KEY_ID} --secret-access-key ${AWS_SECRET_ACCESS_KEY} --region ${AWS_DEFAULT_REGION}
+
+
+
+cleanAzure: &cleanAzure
+    machine: true
+    steps:
+    - checkout
+
+    - attach_workspace:
+        at: .
+
+    - run: ./ci-cleaner azure --client-id ${AZURE_CLIENT_ID} --client-secret ${AZURE_CLIENT_SECRET} --tenant-id ${AZURE_TENANT_ID} --subscription-id ${AZURE_SUBSCRIPTION_ID} --location ${AZURE_LOCATION}
+
