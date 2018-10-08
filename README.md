@@ -2,7 +2,9 @@
 
 # CI Cleaner
 
-Cleans up cloud provider resources created during tests in CI (continuous integration)
+Cleans up cloud provider resources created during tests in CI (continuous integration).
+
+
 
 ### AWS
 
@@ -13,4 +15,4 @@ In AWS, this cleans up:
   - matching certain name prefixes (`cluster-ci-`, `host-peer-ci-`, `e2e-`)
 - S3 buckets
   - that are older than 90 minutes
-  - matching certain name criteria
+  - matching certain name criteria (please see source code)
