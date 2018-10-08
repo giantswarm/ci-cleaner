@@ -77,8 +77,8 @@ func (a *Cleaner) cleanStacks() error {
 
 	var lastError error
 	for _, stack := range output.Stacks {
-		a.logger.Log("level", "debug", "message", fmt.Sprintf("checking stack %#q", *stack.StackName))
 		if !stackShouldBeDeleted(stack) {
+			a.logger.Log("level", "debug", "message", fmt.Sprintf("leaving stack %#q untouched: %#v", *stack.StackName, *stack))
 			continue
 		}
 		a.logger.Log("level", "debug", "message", fmt.Sprintf("found that stack %#q should be deleted", *stack.StackName))
@@ -102,9 +102,9 @@ func (a *Cleaner) cleanStacks() error {
 		if err != nil {
 			lastError = err
 			// do not return on error, try to continue deleting.
-			a.logger.Log("level", "debug", "message", fmt.Sprintf("failed deleting stack %#q: %#v", *stack.StackName, err))
+			a.logger.Log("level", "error", "message", fmt.Sprintf("failed deleting stack %#q: %#v", *stack.StackName, err))
 		} else {
-			a.logger.Log("level", "debug", "message", fmt.Sprintf("deleted stack %#q", *stack.StackName))
+			a.logger.Log("level", "info", "message", fmt.Sprintf("deleted stack %#q", *stack.StackName))
 		}
 	}
 	return lastError
@@ -117,8 +117,8 @@ func (a *Cleaner) cleanBuckets() error {
 		return microerror.Mask(err)
 	}
 	for _, bucket := range output.Buckets {
-		a.logger.Log("level", "debug", "message", fmt.Sprintf("checking bucket %#q", *bucket.Name))
 		if !bucketShouldBeDeleted(bucket) {
+			a.logger.Log("level", "debug", "message", fmt.Sprintf("leaving bucket %#q untouched", *bucket.Name))
 			continue
 		}
 		a.logger.Log("level", "debug", "message", fmt.Sprintf("found that bucket %#q should be deleted", *bucket.Name))
