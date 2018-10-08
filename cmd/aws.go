@@ -55,10 +55,7 @@ func runAws(cmd *cobra.Command, args []string) error {
 		return microerror.Mask(err)
 	}
 
-	err = a.Clean()
-	if err != nil {
-		return microerror.Mask(err)
-	}
+	a.Clean()
 
 	return nil
 }

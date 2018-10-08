@@ -2,6 +2,8 @@ package aws
 
 import (
 	"fmt"
+	"reflect"
+	"runtime"
 	"strings"
 	"time"
 
@@ -43,7 +45,13 @@ func New(config *Config) (*Cleaner, error) {
 	return cleaner, nil
 }
 
-func (a *Cleaner) Clean() error {
+func getFunctionName(i interface{}) string {
+	return runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name()
+}
+
+// Clean calls our cleaner functions and logs errors if they happen.
+// We don't return errors as we want all cleaners to be called.
+func (a *Cleaner) Clean() {
 	type cleanerFn func() error
 
 	cleaners := []cleanerFn{
@@ -52,13 +60,12 @@ func (a *Cleaner) Clean() error {
 	}
 
 	for _, f := range cleaners {
+		a.logger.Log("level", "debug", "message", fmt.Sprintf("running cleaner %s", getFunctionName(f)))
 		err := f()
 		if err != nil {
-			return microerror.Mask(err)
+			a.logger.Log("level", "error", "message", "error in cleaner %s: %#v", getFunctionName(f), err)
 		}
 	}
-
-	return nil
 }
 
 func (a *Cleaner) cleanStacks() error {
