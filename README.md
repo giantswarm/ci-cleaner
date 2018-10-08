@@ -2,4 +2,15 @@
 
 # CI Cleaner
 
-Cleans up resources created during tests in CI (continuous integration)
+Cleans up cloud provider resources created during tests in CI (continuous integration)
+
+### AWS
+
+In AWS, this cleans up:
+
+- CloudFormation stacks
+  - that are older than 90 minutes
+  - matching certain name prefixes (`cluster-ci-`, `host-peer-ci-`, `e2e-`)
+- S3 buckets
+  - that are older than 90 minutes
+  - matching certain name criteria
