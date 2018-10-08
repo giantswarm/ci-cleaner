@@ -150,6 +150,11 @@ func stackShouldBeDeleted(stack *cloudformation.Stack) bool {
 		return false
 	}
 
+	// do not delete stacks that are already being deleted
+	if *stack.StackStatus == "DELETE_IN_PROGRESS" || *stack.StackStatus == "DELETE_COMPLETE" {
+		return false
+	}
+
 	prefixes := []string{
 		"cluster-ci-",
 		"host-peer-ci-",
