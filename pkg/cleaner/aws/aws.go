@@ -95,7 +95,8 @@ func (a *Cleaner) cleanStacks() error {
 			if err != nil {
 				lastError = err
 				// do not return on error, try to continue deleting.
-				a.logger.Log("level", "error", "message", fmt.Sprintf("failed disabling stack protection %#q: %#v", *stack.StackName, err))
+				a.logger.Log("level", "error", "message", fmt.Sprintf("failed disabling stack protection %#q: %#v. Skipping deletion.", *stack.StackName, err))
+				continue
 			}
 		}
 
