@@ -85,7 +85,7 @@ func (a *Cleaner) cleanStacks() error {
 		if err != nil {
 			lastError = err
 			// do not return on error, try to continue deleting.
-			a.logger.Log("level", "debug", "message", fmt.Sprintf("failed disabling stack protection %#q: %#v", *stack.StackName, err))
+			a.logger.Log("level", "error", "message", fmt.Sprintf("failed disabling stack protection %#q: %#v", *stack.StackName, err))
 		}
 
 		deleteStackInput := &cloudformation.DeleteStackInput{
@@ -95,9 +95,9 @@ func (a *Cleaner) cleanStacks() error {
 		if err != nil {
 			lastError = err
 			// do not return on error, try to continue deleting.
-			a.logger.Log("level", "debug", "message", fmt.Sprintf("failed deleting stack %#q: %#v", *stack.StackName, err))
+			a.logger.Log("level", "error", "message", fmt.Sprintf("failed deleting stack %#q: %#v", *stack.StackName, err))
 		} else {
-			a.logger.Log("level", "debug", "message", fmt.Sprintf("deleted stack %#q", *stack.StackName))
+			a.logger.Log("level", "info", "message", fmt.Sprintf("deleted stack %#q", *stack.StackName))
 		}
 	}
 	return lastError
@@ -118,9 +118,9 @@ func (a *Cleaner) cleanBuckets() error {
 		err := a.deleteBucket(bucket.Name)
 		if err != nil {
 			// do not return on error, try to continue deleting.
-			a.logger.Log("level", "debug", "message", fmt.Sprintf("failed deleting bucket %#q: %#v", *bucket.Name, err))
+			a.logger.Log("level", "error", "message", fmt.Sprintf("failed deleting bucket %#q: %#v", *bucket.Name, err))
 		} else {
-			a.logger.Log("level", "debug", "message", fmt.Sprintf("deleted bucket %#q", *bucket.Name))
+			a.logger.Log("level", "info", "message", fmt.Sprintf("deleted bucket %#q", *bucket.Name))
 		}
 	}
 	return nil
