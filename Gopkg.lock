@@ -48,6 +48,7 @@
     "aws/request",
     "aws/session",
     "aws/signer/v4",
+    "internal/s3err",
     "internal/sdkio",
     "internal/sdkrand",
     "internal/sdkuri",
@@ -64,8 +65,8 @@
     "service/s3",
     "service/sts"
   ]
-  revision = "123c8c8326730972861f45fe2e6e7b1d64b4d487"
-  version = "v1.15.1"
+  revision = "59124d90523f4c0491f997f9a36aef265fe3502c"
+  version = "v1.15.49"
 
 [[projects]]
   name = "github.com/dgrijalva/jwt-go"
@@ -150,6 +151,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "30e27b79675e26398845738293ed9683138004b2314fe11b010a041538ea4755"
+  inputs-digest = "0376826f5d560a7aa195898267a83f45cdb53e5613a4af9a3afb6e0ac4a4712e"
   solver-name = "gps-cdcl"
   solver-version = 1
