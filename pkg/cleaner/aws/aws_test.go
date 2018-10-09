@@ -12,8 +12,6 @@ import (
 func TestStackShouldBeDeleted(t *testing.T) {
 	now := time.Now()
 	twoHoursAgo := now.Add(-2 * time.Hour)
-	dummyStatus := "FOO"
-	statusDeleteInProgress := "DELETE_IN_PROGRESS"
 
 	tcs := []struct {
 		stack       *cloudformation.Stack
@@ -24,7 +22,7 @@ func TestStackShouldBeDeleted(t *testing.T) {
 			description: "stack without creation time should be deleted",
 			stack: &cloudformation.Stack{
 				StackName:   aws.String("blblalal"),
-				StackStatus: &dummyStatus,
+				StackStatus: aws.String("FOO_STATUS"),
 			},
 			expected: true,
 		},
@@ -33,7 +31,7 @@ func TestStackShouldBeDeleted(t *testing.T) {
 			stack: &cloudformation.Stack{
 				StackName:    aws.String("host-peer-ci-blblalal"),
 				CreationTime: &now,
-				StackStatus:  &dummyStatus,
+				StackStatus:  aws.String("FOO_STATUS"),
 			},
 			expected: false,
 		},
@@ -42,7 +40,7 @@ func TestStackShouldBeDeleted(t *testing.T) {
 			stack: &cloudformation.Stack{
 				StackName:    aws.String("host-peer-ci-blblalal"),
 				CreationTime: &twoHoursAgo,
-				StackStatus:  &dummyStatus,
+				StackStatus:  aws.String("FOO_STATUS"),
 			},
 			expected: true,
 		},
@@ -51,7 +49,7 @@ func TestStackShouldBeDeleted(t *testing.T) {
 			stack: &cloudformation.Stack{
 				StackName:    aws.String("cluster-ci-blblalal"),
 				CreationTime: &now,
-				StackStatus:  &dummyStatus,
+				StackStatus:  aws.String("FOO_STATUS"),
 			},
 			expected: false,
 		},
@@ -60,7 +58,7 @@ func TestStackShouldBeDeleted(t *testing.T) {
 			stack: &cloudformation.Stack{
 				StackName:    aws.String("cluster-ci-blblalal"),
 				CreationTime: &twoHoursAgo,
-				StackStatus:  &dummyStatus,
+				StackStatus:  aws.String("FOO_STATUS"),
 			},
 			expected: true,
 		},
@@ -69,7 +67,7 @@ func TestStackShouldBeDeleted(t *testing.T) {
 			stack: &cloudformation.Stack{
 				StackName:    aws.String("e2e-blblalal"),
 				CreationTime: &now,
-				StackStatus:  &dummyStatus,
+				StackStatus:  aws.String("FOO_STATUS"),
 			},
 			expected: false,
 		},
@@ -78,7 +76,7 @@ func TestStackShouldBeDeleted(t *testing.T) {
 			stack: &cloudformation.Stack{
 				StackName:    aws.String("e2e-blblalal"),
 				CreationTime: &twoHoursAgo,
-				StackStatus:  &dummyStatus,
+				StackStatus:  aws.String("FOO_STATUS"),
 			},
 			expected: true,
 		},
@@ -87,7 +85,7 @@ func TestStackShouldBeDeleted(t *testing.T) {
 			stack: &cloudformation.Stack{
 				StackName:    aws.String("e2e-blabla"),
 				CreationTime: &twoHoursAgo,
-				StackStatus:  &statusDeleteInProgress,
+				StackStatus:  aws.String("DELETE_IN_PROGRESS"),
 			},
 			expected: false,
 		},
