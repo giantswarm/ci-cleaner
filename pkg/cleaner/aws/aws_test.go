@@ -10,9 +10,6 @@ import (
 )
 
 func TestStackShouldBeDeleted(t *testing.T) {
-	now := time.Now()
-	twoHoursAgo := now.Add(-2 * time.Hour)
-
 	tcs := []struct {
 		stack       *cloudformation.Stack
 		expected    bool
@@ -30,7 +27,7 @@ func TestStackShouldBeDeleted(t *testing.T) {
 			description: "recent host peer stack should not be deleted",
 			stack: &cloudformation.Stack{
 				StackName:    aws.String("host-peer-ci-blblalal"),
-				CreationTime: &now,
+				CreationTime: aws.Time(time.Now()),
 				StackStatus:  aws.String("FOO_STATUS"),
 			},
 			expected: false,
@@ -39,7 +36,7 @@ func TestStackShouldBeDeleted(t *testing.T) {
 			description: "old host peer stack should be deleted",
 			stack: &cloudformation.Stack{
 				StackName:    aws.String("host-peer-ci-blblalal"),
-				CreationTime: &twoHoursAgo,
+				CreationTime: aws.Time(time.Now().Add(-2 * time.Hour)),
 				StackStatus:  aws.String("FOO_STATUS"),
 			},
 			expected: true,
@@ -48,7 +45,7 @@ func TestStackShouldBeDeleted(t *testing.T) {
 			description: "recent cluster ci stack should not be deleted",
 			stack: &cloudformation.Stack{
 				StackName:    aws.String("cluster-ci-blblalal"),
-				CreationTime: &now,
+				CreationTime: aws.Time(time.Now()),
 				StackStatus:  aws.String("FOO_STATUS"),
 			},
 			expected: false,
@@ -57,7 +54,7 @@ func TestStackShouldBeDeleted(t *testing.T) {
 			description: "old cluster ci stack should be deleted",
 			stack: &cloudformation.Stack{
 				StackName:    aws.String("cluster-ci-blblalal"),
-				CreationTime: &twoHoursAgo,
+				CreationTime: aws.Time(time.Now().Add(-2 * time.Hour)),
 				StackStatus:  aws.String("FOO_STATUS"),
 			},
 			expected: true,
@@ -66,7 +63,7 @@ func TestStackShouldBeDeleted(t *testing.T) {
 			description: "recent cluster e2e stack should not be deleted",
 			stack: &cloudformation.Stack{
 				StackName:    aws.String("e2e-blblalal"),
-				CreationTime: &now,
+				CreationTime: aws.Time(time.Now()),
 				StackStatus:  aws.String("FOO_STATUS"),
 			},
 			expected: false,
@@ -75,7 +72,7 @@ func TestStackShouldBeDeleted(t *testing.T) {
 			description: "old cluster e2e stack should be deleted",
 			stack: &cloudformation.Stack{
 				StackName:    aws.String("e2e-blblalal"),
-				CreationTime: &twoHoursAgo,
+				CreationTime: aws.Time(time.Now().Add(-2 * time.Hour)),
 				StackStatus:  aws.String("FOO_STATUS"),
 			},
 			expected: true,
@@ -84,7 +81,7 @@ func TestStackShouldBeDeleted(t *testing.T) {
 			description: "stack that is already being deleted",
 			stack: &cloudformation.Stack{
 				StackName:    aws.String("e2e-blabla"),
-				CreationTime: &twoHoursAgo,
+				CreationTime: aws.Time(time.Now().Add(-2 * time.Hour)),
 				StackStatus:  aws.String("DELETE_IN_PROGRESS"),
 			},
 			expected: false,
@@ -103,9 +100,6 @@ func TestStackShouldBeDeleted(t *testing.T) {
 }
 
 func TestBucketShouldBeDeleted(t *testing.T) {
-	now := time.Now()
-	twoHoursAgo := now.Add(-2 * time.Hour)
-
 	tcs := []struct {
 		bucket      *s3.Bucket
 		expected    bool
@@ -122,7 +116,7 @@ func TestBucketShouldBeDeleted(t *testing.T) {
 			description: "recent ci wip bucket should not be deleted",
 			bucket: &s3.Bucket{
 				Name:         aws.String("270935918670-g8s-ci-wip-50a83-d4f51"),
-				CreationDate: &now,
+				CreationDate: aws.Time(time.Now()),
 			},
 			expected: false,
 		},
@@ -130,7 +124,7 @@ func TestBucketShouldBeDeleted(t *testing.T) {
 			description: "recent ci wip log bucket should not be deleted",
 			bucket: &s3.Bucket{
 				Name:         aws.String("ci-wip-ac84b-7a52e-g8s-access-logs"),
-				CreationDate: &now,
+				CreationDate: aws.Time(time.Now()),
 			},
 			expected: false,
 		},
@@ -138,7 +132,7 @@ func TestBucketShouldBeDeleted(t *testing.T) {
 			description: "recent ci cur bucket should not be deleted",
 			bucket: &s3.Bucket{
 				Name:         aws.String("270935918670-g8s-ci-cur-50a83-d4f51"),
-				CreationDate: &now,
+				CreationDate: aws.Time(time.Now()),
 			},
 			expected: false,
 		},
@@ -146,7 +140,7 @@ func TestBucketShouldBeDeleted(t *testing.T) {
 			description: "recent ci cur log bucket should not be deleted",
 			bucket: &s3.Bucket{
 				Name:         aws.String("ci-cur-ac84b-7a52e-g8s-access-logs"),
-				CreationDate: &now,
+				CreationDate: aws.Time(time.Now()),
 			},
 			expected: false,
 		},
@@ -154,7 +148,7 @@ func TestBucketShouldBeDeleted(t *testing.T) {
 			description: "recent ci clop bucket should not be deleted",
 			bucket: &s3.Bucket{
 				Name:         aws.String("270935918670-g8s-ci-clop-50a83-d4f51"),
-				CreationDate: &now,
+				CreationDate: aws.Time(time.Now()),
 			},
 			expected: false,
 		},
@@ -162,7 +156,7 @@ func TestBucketShouldBeDeleted(t *testing.T) {
 			description: "recent ci clop log bucket should not be deleted",
 			bucket: &s3.Bucket{
 				Name:         aws.String("ci-clop-ac84b-7a52e-g8s-access-logs"),
-				CreationDate: &now,
+				CreationDate: aws.Time(time.Now()),
 			},
 			expected: false,
 		},
@@ -170,7 +164,7 @@ func TestBucketShouldBeDeleted(t *testing.T) {
 			description: "old ci wip bucket should be deleted",
 			bucket: &s3.Bucket{
 				Name:         aws.String("270935918670-g8s-ci-wip-50a83-d4f51"),
-				CreationDate: &twoHoursAgo,
+				CreationDate: aws.Time(time.Now().Add(-2 * time.Hour)),
 			},
 			expected: true,
 		},
@@ -178,7 +172,7 @@ func TestBucketShouldBeDeleted(t *testing.T) {
 			description: "old ci wip log bucket should be deleted",
 			bucket: &s3.Bucket{
 				Name:         aws.String("ci-wip-ac84b-7a52e-g8s-access-logs"),
-				CreationDate: &twoHoursAgo,
+				CreationDate: aws.Time(time.Now().Add(-2 * time.Hour)),
 			},
 			expected: true,
 		},
@@ -186,7 +180,7 @@ func TestBucketShouldBeDeleted(t *testing.T) {
 			description: "old ci cur bucket should be deleted",
 			bucket: &s3.Bucket{
 				Name:         aws.String("270935918670-g8s-ci-cur-50a83-d4f51"),
-				CreationDate: &twoHoursAgo,
+				CreationDate: aws.Time(time.Now().Add(-2 * time.Hour)),
 			},
 			expected: true,
 		},
@@ -194,7 +188,7 @@ func TestBucketShouldBeDeleted(t *testing.T) {
 			description: "old ci cur log bucket should be deleted",
 			bucket: &s3.Bucket{
 				Name:         aws.String("ci-cur-ac84b-7a52e-g8s-access-logs"),
-				CreationDate: &twoHoursAgo,
+				CreationDate: aws.Time(time.Now().Add(-2 * time.Hour)),
 			},
 			expected: true,
 		},
@@ -202,7 +196,7 @@ func TestBucketShouldBeDeleted(t *testing.T) {
 			description: "old ci clop bucket should be deleted",
 			bucket: &s3.Bucket{
 				Name:         aws.String("270935918670-g8s-ci-clop-50a83-d4f51"),
-				CreationDate: &twoHoursAgo,
+				CreationDate: aws.Time(time.Now().Add(-2 * time.Hour)),
 			},
 			expected: true,
 		},
@@ -210,7 +204,7 @@ func TestBucketShouldBeDeleted(t *testing.T) {
 			description: "old ci clop log bucket should be deleted",
 			bucket: &s3.Bucket{
 				Name:         aws.String("ci-clop-ac84b-7a52e-g8s-access-logs"),
-				CreationDate: &twoHoursAgo,
+				CreationDate: aws.Time(time.Now().Add(-2 * time.Hour)),
 			},
 			expected: true,
 		},
@@ -218,7 +212,7 @@ func TestBucketShouldBeDeleted(t *testing.T) {
 			description: "recent general bucket should not be deleted",
 			bucket: &s3.Bucket{
 				Name:         aws.String("270935918670-g8s-84ar8-ci-5555-clop-blabla"),
-				CreationDate: &now,
+				CreationDate: aws.Time(time.Now()),
 			},
 			expected: false,
 		},
@@ -226,7 +220,7 @@ func TestBucketShouldBeDeleted(t *testing.T) {
 			description: "old general bucket should not be deleted",
 			bucket: &s3.Bucket{
 				Name:         aws.String("270935918670-g8s-84ar8-ci-5555-clop-blabla"),
-				CreationDate: &twoHoursAgo,
+				CreationDate: aws.Time(time.Now().Add(-2 * time.Hour)),
 			},
 			expected: false,
 		},
