@@ -45,6 +45,7 @@ func New(config *Config) (*Cleaner, error) {
 	return cleaner, nil
 }
 
+// getFunctionName returns the name of the function passed as argument.
 func getFunctionName(i interface{}) string {
 	return runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name()
 }
