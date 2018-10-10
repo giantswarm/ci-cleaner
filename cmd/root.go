@@ -26,7 +26,7 @@ func init() {
 
 		logger, err = micrologger.New(c)
 		if err != nil {
-			panic(fmt.Sprintf("%#v", err))
+			panic(fmt.Sprintf("Error creating micrologger instance: %#v", err))
 		}
 	}
 
