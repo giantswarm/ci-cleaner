@@ -33,7 +33,7 @@
   version = "v10.15.5"
 
 [[projects]]
-  digest = "1:866fe12910f34beabce4b97dd1b8a2bb7d71a2801f4988ef0ab7158f20b585df"
+  digest = "1:e3505ff512ce4bbcf5030dda827405853dc7f6c2e299b802b600acfdbdb369e9"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -53,6 +53,7 @@
     "aws/request",
     "aws/session",
     "aws/signer/v4",
+    "internal/s3err",
     "internal/sdkio",
     "internal/sdkrand",
     "internal/sdkuri",
@@ -71,8 +72,8 @@
     "service/sts",
   ]
   pruneopts = "UT"
-  revision = "a8ff9e4804fc89c994b731b1c057640ab2aecff3"
-  version = "v1.15.45"
+  revision = "46fe04784968cd7b54e859fcce45753456f736ac"
+  version = "v1.15.52"
 
 [[projects]]
   digest = "1:76dc72490af7174349349838f2fe118996381b31ea83243812a97e5a0fd5ed55"
@@ -88,7 +89,7 @@
   name = "github.com/giantswarm/microerror"
   packages = ["."]
   pruneopts = "UT"
-  revision = "5f43dec2d9e50a4c7c869d17a8f0a9dba2edc177"
+  revision = "3bc3cb1a36700aa4bbfcf6c335bc2ab92ad66d8d"
 
 [[projects]]
   branch = "master"
@@ -99,7 +100,7 @@
     "loggermeta",
   ]
   pruneopts = "UT"
-  revision = "d757f42e4a3efca1fe82e633579b28c586e08698"
+  revision = "22dc3b5565d150e1f94fbed50df3baf6cd40fac9"
 
 [[projects]]
   digest = "1:b98e7574fc27ec166fb31195ec72c3bd0bffd73926d3612eb4c929bc5236f75b"
@@ -173,12 +174,12 @@
   version = "v0.0.3"
 
 [[projects]]
-  digest = "1:dab83a1bbc7ad3d7a6ba1a1cc1760f25ac38cdf7d96a5cdd55cd915a4f5ceaf9"
+  digest = "1:c1b1102241e7f645bc8e0c22ae352e8f0dc6484b6cb4d132fa9f24174e0119e2"
   name = "github.com/spf13/pflag"
   packages = ["."]
   pruneopts = "UT"
-  revision = "9a97c102cda95a86cec2345a6f09f55a939babf5"
-  version = "v1.0.2"
+  revision = "298182f68c66c05229eb03ac171abe6e309ee79a"
+  version = "v1.0.3"
 
 [solve-meta]
   analyzer-name = "dep"
