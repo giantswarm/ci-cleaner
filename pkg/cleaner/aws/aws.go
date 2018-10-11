@@ -54,10 +54,10 @@ func (a *Cleaner) Clean() error {
 	type cleanerFn func() error
 
 	cleaners := []cleanerFn{
-		// TODO enable before merge
-		//a.cleanStacks,
-		//a.cleanBuckets,
-		a.cleanHostedZones,
+		a.cleanStacks,
+		a.cleanBuckets,
+		// NOTE this can be enable when needed for further cleanups.
+		// a.cleanHostedZones,
 	}
 
 	for _, f := range cleaners {
