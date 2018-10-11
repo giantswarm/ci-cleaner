@@ -2,18 +2,21 @@
 
 
 [[projects]]
+  digest = "1:a70864173302e516ebaa1b2db7ebece30c78cc2201aa1c2042434b8796329b42"
   name = "github.com/Azure/azure-sdk-for-go"
   packages = [
     "services/dns/mgmt/2017-10-01/dns",
     "services/network/mgmt/2018-05-01/network",
     "services/preview/monitor/mgmt/2018-03-01/insights",
     "services/resources/mgmt/2018-02-01/resources",
-    "version"
+    "version",
   ]
+  pruneopts = "UT"
   revision = "4e8cbbfb1aeab140cd0fa97fd16b64ee18c3ca6a"
   version = "v19.1.0"
 
 [[projects]]
+  digest = "1:61d8ba12db8ce8281d05b4de74343f407b43c4fe468dfae874621e0445b09055"
   name = "github.com/Azure/go-autorest"
   packages = [
     "autorest",
@@ -23,12 +26,14 @@
     "autorest/to",
     "autorest/validation",
     "logger",
-    "version"
+    "version",
   ]
-  revision = "dd94e014aaf16d1df746762e392aa201c1b4c461"
-  version = "v10.15.0"
+  pruneopts = "UT"
+  revision = "9bc4033dd347c7f416fca46b2f42a043dc1fbdf6"
+  version = "v10.15.5"
 
 [[projects]]
+  digest = "1:e3505ff512ce4bbcf5030dda827405853dc7f6c2e299b802b600acfdbdb369e9"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -62,95 +67,140 @@
     "private/protocol/restxml",
     "private/protocol/xml/xmlutil",
     "service/cloudformation",
+    "service/route53",
     "service/s3",
-    "service/sts"
+    "service/sts",
   ]
-  revision = "59124d90523f4c0491f997f9a36aef265fe3502c"
-  version = "v1.15.49"
+  pruneopts = "UT"
+  revision = "46fe04784968cd7b54e859fcce45753456f736ac"
+  version = "v1.15.52"
 
 [[projects]]
+  digest = "1:76dc72490af7174349349838f2fe118996381b31ea83243812a97e5a0fd5ed55"
   name = "github.com/dgrijalva/jwt-go"
   packages = ["."]
+  pruneopts = "UT"
   revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
   version = "v3.2.0"
 
 [[projects]]
   branch = "master"
+  digest = "1:f7ae60209ba785a98a5b27ed43ec9778f74e6c7623b5ff3d86f900f66c86fac1"
   name = "github.com/giantswarm/microerror"
   packages = ["."]
-  revision = "a8d5d4f526c526b4b773062958847fe7e0b7f449"
+  pruneopts = "UT"
+  revision = "3bc3cb1a36700aa4bbfcf6c335bc2ab92ad66d8d"
 
 [[projects]]
   branch = "master"
+  digest = "1:7fed84053b8cc25567538a09e6e3aaf928cdd953cb335334ddde98aa3bcc3a12"
   name = "github.com/giantswarm/micrologger"
   packages = [
     ".",
-    "loggermeta"
+    "loggermeta",
   ]
-  revision = "39f8cfb7c2583edb28552d9e4b12193e5bddaf60"
+  pruneopts = "UT"
+  revision = "22dc3b5565d150e1f94fbed50df3baf6cd40fac9"
 
 [[projects]]
+  digest = "1:b98e7574fc27ec166fb31195ec72c3bd0bffd73926d3612eb4c929bc5236f75b"
   name = "github.com/go-ini/ini"
   packages = ["."]
-  revision = "358ee7663966325963d4e8b2e1fbd570c5195153"
-  version = "v1.38.1"
+  pruneopts = "UT"
+  revision = "7b294651033cd7d9e7f0d9ffa1b75ed1e198e737"
+  version = "v1.38.3"
 
 [[projects]]
+  digest = "1:0cfcded8689c2c964c223650009c5dd9e283c22d57f18f2335aafa16cc22acf1"
   name = "github.com/go-kit/kit"
   packages = ["log"]
+  pruneopts = "UT"
   revision = "4dc7be5d2d12881735283bcab7352178e190fc71"
   version = "v0.6.0"
 
 [[projects]]
+  digest = "1:31a18dae27a29aa074515e43a443abfd2ba6deb6d69309d8d7ce789c45f34659"
   name = "github.com/go-logfmt/logfmt"
   packages = ["."]
+  pruneopts = "UT"
   revision = "390ab7935ee28ec6b286364bba9b4dd6410cb3d5"
   version = "v0.3.0"
 
 [[projects]]
+  digest = "1:586ea76dbd0374d6fb649a91d70d652b7fe0ccffb8910a77468e7702e7901f3d"
   name = "github.com/go-stack/stack"
   packages = ["."]
-  revision = "259ab82a6cad3992b4e21ff5cac294ccb06474bc"
-  version = "v1.7.0"
+  pruneopts = "UT"
+  revision = "2fee6af1a9795aafbe0253a0cfbdf668e1fb8a9a"
+  version = "v1.8.0"
 
 [[projects]]
+  digest = "1:870d441fe217b8e689d7949fef6e43efbc787e50f200cb1e70dbca9204a1d6be"
   name = "github.com/inconshreveable/mousetrap"
   packages = ["."]
+  pruneopts = "UT"
   revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
   version = "v1.0"
 
 [[projects]]
+  digest = "1:e22af8c7518e1eab6f2eab2b7d7558927f816262586cd6ed9f349c97a6c285c4"
   name = "github.com/jmespath/go-jmespath"
   packages = ["."]
+  pruneopts = "UT"
   revision = "0b12d6b5"
 
 [[projects]]
   branch = "master"
+  digest = "1:926b6084b81f49359f67e48ef8b74f33ea8509afe8410d3b34789eaea02da898"
   name = "github.com/juju/errgo"
   packages = ["."]
+  pruneopts = "UT"
   revision = "08cceb5d0b5331634b9826762a8fd53b29b86ad8"
 
 [[projects]]
   branch = "master"
+  digest = "1:a64e323dc06b73892e5bb5d040ced475c4645d456038333883f58934abbf6f72"
   name = "github.com/kr/logfmt"
   packages = ["."]
+  pruneopts = "UT"
   revision = "b84e30acd515aadc4b783ad4ff83aff3299bdfe0"
 
 [[projects]]
+  digest = "1:645cabccbb4fa8aab25a956cbcbdf6a6845ca736b2c64e197ca7cbb9d210b939"
   name = "github.com/spf13/cobra"
   packages = ["."]
+  pruneopts = "UT"
   revision = "ef82de70bb3f60c65fb8eebacbb2d122ef517385"
   version = "v0.0.3"
 
 [[projects]]
+  digest = "1:c1b1102241e7f645bc8e0c22ae352e8f0dc6484b6cb4d132fa9f24174e0119e2"
   name = "github.com/spf13/pflag"
   packages = ["."]
-  revision = "583c0c0531f06d5278b7d917446061adc344b5cd"
-  version = "v1.0.1"
+  pruneopts = "UT"
+  revision = "298182f68c66c05229eb03ac171abe6e309ee79a"
+  version = "v1.0.3"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "0376826f5d560a7aa195898267a83f45cdb53e5613a4af9a3afb6e0ac4a4712e"
+  input-imports = [
+    "github.com/Azure/azure-sdk-for-go/services/dns/mgmt/2017-10-01/dns",
+    "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2018-05-01/network",
+    "github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2018-03-01/insights",
+    "github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2018-02-01/resources",
+    "github.com/Azure/go-autorest/autorest",
+    "github.com/Azure/go-autorest/autorest/adal",
+    "github.com/Azure/go-autorest/autorest/azure",
+    "github.com/aws/aws-sdk-go/aws",
+    "github.com/aws/aws-sdk-go/aws/credentials",
+    "github.com/aws/aws-sdk-go/aws/session",
+    "github.com/aws/aws-sdk-go/service/cloudformation",
+    "github.com/aws/aws-sdk-go/service/route53",
+    "github.com/aws/aws-sdk-go/service/s3",
+    "github.com/giantswarm/microerror",
+    "github.com/giantswarm/micrologger",
+    "github.com/spf13/cobra",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1
