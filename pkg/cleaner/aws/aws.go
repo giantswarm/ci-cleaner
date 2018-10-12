@@ -106,6 +106,11 @@ func (a *Cleaner) cleanStacks() error {
 		}
 		a.logger.Log("level", "debug", "message", fmt.Sprintf("found that stack %#q should be deleted", *stack.StackName))
 
+		if stack == nil {
+			a.logger.Log("level", "error", "message", "stack is nil, cannot proceed with deletion")
+			continue
+		}
+
 		if *stack.EnableTerminationProtection {
 			a.logger.Log("level", "debug", "message", fmt.Sprintf("disabling termination protection for stack %#q", *stack.StackName))
 			enableTerminationProtection := false
