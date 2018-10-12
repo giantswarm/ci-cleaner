@@ -100,18 +100,16 @@ func (a *Cleaner) cleanStacks() error {
 	}
 
 	for _, stack := range output.Stacks {
+		a.logger.Log("level", "debug", "message", fmt.Sprintf("stack '%s', StackID %v, ParentID %v, RootID %v",
+			*stack.StackName, *stack.StackId, *stack.ParentId, *stack.RootId))
+
 		if !stackShouldBeDeleted(stack) {
 			a.logger.Log("level", "debug", "message", fmt.Sprintf("leaving stack %#q untouched: %#v", *stack.StackName, *stack))
 			continue
 		}
 		a.logger.Log("level", "debug", "message", fmt.Sprintf("found that stack %#q should be deleted", *stack.StackName))
 
-		if stack == nil {
-			a.logger.Log("level", "error", "message", "stack is nil, cannot proceed with deletion")
-			continue
-		}
-
-		if *stack.EnableTerminationProtection {
+		if stack.EnableTerminationProtection != nil && *stack.EnableTerminationProtection {
 			a.logger.Log("level", "debug", "message", fmt.Sprintf("disabling termination protection for stack %#q", *stack.StackName))
 			enableTerminationProtection := false
 			updateTerminationProtection := &cloudformation.UpdateTerminationProtectionInput{
