@@ -78,9 +78,7 @@ func (a *Cleaner) Clean() error {
 		err := f()
 		if err != nil {
 			a.logger.Log("level", "error", "message", fmt.Sprintf("running cleaner %s", getFunctionName(f)), "stack", fmt.Sprintf("%#v", err))
-			if val, ok := err.(*errorcollection.ErrorCollection); ok {
-				errors.Append(val)
-			}
+			errors.Append(err)
 		}
 	}
 
