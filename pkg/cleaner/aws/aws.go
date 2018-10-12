@@ -100,8 +100,7 @@ func (a *Cleaner) cleanStacks() error {
 	}
 
 	for _, stack := range output.Stacks {
-		a.logger.Log("level", "debug", "message", fmt.Sprintf("stack '%s', StackID %v, ParentID %v, RootID %v",
-			*stack.StackName, *stack.StackId, *stack.ParentId, *stack.RootId))
+		a.logger.Log("level", "debug", "message", fmt.Sprintf("stack: %#v", stack))
 
 		if !stackShouldBeDeleted(stack) {
 			a.logger.Log("level", "debug", "message", fmt.Sprintf("leaving stack %#q untouched: %#v", *stack.StackName, *stack))
