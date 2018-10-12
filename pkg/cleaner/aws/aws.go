@@ -2,6 +2,8 @@ package aws
 
 import (
 	"fmt"
+	"reflect"
+	"runtime"
 	"strings"
 	"time"
 
@@ -10,6 +12,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+
+	"github.com/giantswarm/ci-cleaner/pkg/errorcollection"
 )
 
 type Config struct {
@@ -50,6 +54,13 @@ func New(config *Config) (*Cleaner, error) {
 	return cleaner, nil
 }
 
+// getFunctionName returns the name of the function passed as argument.
+func getFunctionName(i interface{}) string {
+	return runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name()
+}
+
+// Clean calls our cleaner functions and logs errors if they happen.
+// We don't return errors as we want all cleaners to be called.
 func (a *Cleaner) Clean() error {
 	type cleanerFn func() error
 
@@ -60,41 +71,55 @@ func (a *Cleaner) Clean() error {
 		// a.cleanHostedZones,
 	}
 
+	errors := &errorcollection.ErrorCollection{}
+
 	for _, f := range cleaners {
+		a.logger.Log("level", "debug", "message", fmt.Sprintf("running cleaner %s", getFunctionName(f)))
 		err := f()
 		if err != nil {
-			return microerror.Mask(err)
+			a.logger.Log("level", "error", "message", fmt.Sprintf("running cleaner %s", getFunctionName(f)), "stack", fmt.Sprintf("%#v", err))
+			errors.Append(err)
 		}
+	}
+
+	if errors.HasErrors() {
+		return errors
 	}
 
 	return nil
 }
 
 func (a *Cleaner) cleanStacks() error {
+	errors := &errorcollection.ErrorCollection{}
+
 	input := &cloudformation.DescribeStacksInput{}
 	output, err := a.cfClient.DescribeStacks(input)
 	if err != nil {
-		return microerror.Mask(err)
+		errors.Append(microerror.Mask(err))
+		return errors
 	}
 
-	var lastError error
 	for _, stack := range output.Stacks {
-		a.logger.Log("level", "debug", "message", fmt.Sprintf("checking stack %#q", *stack.StackName))
 		if !stackShouldBeDeleted(stack) {
+			a.logger.Log("level", "debug", "message", fmt.Sprintf("leaving stack %#q untouched: %#v", *stack.StackName, *stack))
 			continue
 		}
 		a.logger.Log("level", "debug", "message", fmt.Sprintf("found that stack %#q should be deleted", *stack.StackName))
 
-		enableTerminationProtection := false
-		updateTerminationProtection := &cloudformation.UpdateTerminationProtectionInput{
-			EnableTerminationProtection: &enableTerminationProtection,
-			StackName:                   stack.StackName,
-		}
-		_, err = a.cfClient.UpdateTerminationProtection(updateTerminationProtection)
-		if err != nil {
-			lastError = err
-			// do not return on error, try to continue deleting.
-			a.logger.Log("level", "error", "message", fmt.Sprintf("failed disabling stack protection %#q: %#v", *stack.StackName, err))
+		if *stack.EnableTerminationProtection {
+			a.logger.Log("level", "debug", "message", fmt.Sprintf("disabling termination protection for stack %#q", *stack.StackName))
+			enableTerminationProtection := false
+			updateTerminationProtection := &cloudformation.UpdateTerminationProtectionInput{
+				EnableTerminationProtection: &enableTerminationProtection,
+				StackName:                   stack.StackName,
+			}
+			_, err = a.cfClient.UpdateTerminationProtection(updateTerminationProtection)
+			if err != nil {
+				errors.Append(microerror.Mask(err))
+				// do not return on error, try to continue deleting.
+				a.logger.Log("level", "error", "message", fmt.Sprintf("failed disabling stack protection %#q: %#v. Skipping deletion.", *stack.StackName, err), "stack", fmt.Sprintf("%#v", err))
+				continue
+			}
 		}
 
 		deleteStackInput := &cloudformation.DeleteStackInput{
@@ -102,35 +127,47 @@ func (a *Cleaner) cleanStacks() error {
 		}
 		_, err := a.cfClient.DeleteStack(deleteStackInput)
 		if err != nil {
-			lastError = err
+			errors.Append(microerror.Mask(err))
 			// do not return on error, try to continue deleting.
-			a.logger.Log("level", "error", "message", fmt.Sprintf("failed deleting stack %#q: %#v", *stack.StackName, err))
+			a.logger.Log("level", "error", "message", fmt.Sprintf("failed deleting stack %#q: %#v", *stack.StackName, err), "stack", fmt.Sprintf("%#v", err))
 		} else {
 			a.logger.Log("level", "info", "message", fmt.Sprintf("deleted stack %#q", *stack.StackName))
 		}
 	}
-	return lastError
+
+	if errors.HasErrors() {
+		return errors
+	}
+	return nil
 }
 
 func (a *Cleaner) cleanBuckets() error {
+	errors := &errorcollection.ErrorCollection{}
+
 	input := &s3.ListBucketsInput{}
 	output, err := a.s3Client.ListBuckets(input)
 	if err != nil {
-		return microerror.Mask(err)
+		errors.Append(microerror.Mask(err))
+		return errors
 	}
+
 	for _, bucket := range output.Buckets {
-		a.logger.Log("level", "debug", "message", fmt.Sprintf("checking bucket %#q", *bucket.Name))
 		if !bucketShouldBeDeleted(bucket) {
+			a.logger.Log("level", "debug", "message", fmt.Sprintf("leaving bucket %#q untouched", *bucket.Name))
 			continue
 		}
 		a.logger.Log("level", "debug", "message", fmt.Sprintf("found that bucket %#q should be deleted", *bucket.Name))
 		err := a.deleteBucket(bucket.Name)
 		if err != nil {
-			// do not return on error, try to continue deleting.
-			a.logger.Log("level", "error", "message", fmt.Sprintf("failed deleting bucket %#q: %#v", *bucket.Name, err))
+			errors.Append(microerror.Mask(err))
+			a.logger.Log("level", "error", "message", fmt.Sprintf("failed deleting bucket %#q: %#v", *bucket.Name, err), "stack", fmt.Sprintf("%#v", err))
 		} else {
 			a.logger.Log("level", "info", "message", fmt.Sprintf("deleted bucket %#q", *bucket.Name))
 		}
+	}
+
+	if errors.HasErrors() {
+		return errors
 	}
 	return nil
 }
@@ -180,6 +217,11 @@ func stackShouldBeDeleted(stack *cloudformation.Stack) bool {
 
 	// do not delete recent stacks.
 	if timeDiff < gracePeriod {
+		return false
+	}
+
+	// do not delete stacks that are already being deleted
+	if *stack.StackStatus == "DELETE_IN_PROGRESS" || *stack.StackStatus == "DELETE_COMPLETE" {
 		return false
 	}
 
