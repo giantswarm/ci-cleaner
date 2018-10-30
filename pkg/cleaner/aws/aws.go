@@ -74,7 +74,7 @@ func (a *Cleaner) Clean() error {
 	errors := &errorcollection.ErrorCollection{}
 
 	for _, f := range cleaners {
-		a.logger.Log("level", "debug", "message", fmt.Sprintf("running cleaner %s", getFunctionName(f)))
+		a.logger.Log("level", "info", "message", fmt.Sprintf("running cleaner %s", getFunctionName(f)))
 		err := f()
 		if err != nil {
 			a.logger.Log("level", "error", "message", fmt.Sprintf("running cleaner %s", getFunctionName(f)), "stack", fmt.Sprintf("%#v", err))
@@ -100,13 +100,11 @@ func (a *Cleaner) cleanStacks() error {
 	}
 
 	for _, stack := range output.Stacks {
-		a.logger.Log("level", "debug", "message", fmt.Sprintf("stack: %#v", stack))
-
 		if !stackShouldBeDeleted(stack) {
-			a.logger.Log("level", "debug", "message", fmt.Sprintf("leaving stack %#q untouched: %#v", *stack.StackName, *stack))
 			continue
 		}
-		a.logger.Log("level", "debug", "message", fmt.Sprintf("found that stack %#q should be deleted", *stack.StackName))
+
+		a.logger.Log("level", "info", "message", fmt.Sprintf("found that stack %#q should be deleted", *stack.StackName))
 
 		if stack.EnableTerminationProtection != nil && *stack.EnableTerminationProtection {
 			a.logger.Log("level", "debug", "message", fmt.Sprintf("disabling termination protection for stack %#q", *stack.StackName))
@@ -131,7 +129,8 @@ func (a *Cleaner) cleanStacks() error {
 		if err != nil {
 			errors.Append(microerror.Mask(err))
 			// do not return on error, try to continue deleting.
-			a.logger.Log("level", "error", "message", fmt.Sprintf("failed deleting stack %#q: %#v", *stack.StackName, err), "stack", fmt.Sprintf("%#v", err))
+			a.logger.Log("level", "error", "message", fmt.Sprintf("failed deleting stack %#q: %s", *stack.StackName, err.Error()), "stack", fmt.Sprintf("%#v", err))
+			a.logger.Log("level", "debug", "message", fmt.Sprintf("stack details: %#v", stack))
 		} else {
 			a.logger.Log("level", "info", "message", fmt.Sprintf("deleted stack %#q", *stack.StackName))
 		}
@@ -155,7 +154,6 @@ func (a *Cleaner) cleanBuckets() error {
 
 	for _, bucket := range output.Buckets {
 		if !bucketShouldBeDeleted(bucket) {
-			a.logger.Log("level", "debug", "message", fmt.Sprintf("leaving bucket %#q untouched", *bucket.Name))
 			continue
 		}
 		a.logger.Log("level", "debug", "message", fmt.Sprintf("found that bucket %#q should be deleted", *bucket.Name))
