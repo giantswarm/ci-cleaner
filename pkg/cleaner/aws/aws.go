@@ -106,20 +106,18 @@ func (a *Cleaner) cleanStacks() error {
 
 		a.logger.Log("level", "info", "message", fmt.Sprintf("found that stack %#q should be deleted", *stack.StackName))
 
-		if stack.EnableTerminationProtection != nil && *stack.EnableTerminationProtection {
-			a.logger.Log("level", "debug", "message", fmt.Sprintf("disabling termination protection for stack %#q", *stack.StackName))
-			enableTerminationProtection := false
-			updateTerminationProtection := &cloudformation.UpdateTerminationProtectionInput{
-				EnableTerminationProtection: &enableTerminationProtection,
-				StackName:                   stack.StackName,
-			}
-			_, err = a.cfClient.UpdateTerminationProtection(updateTerminationProtection)
-			if err != nil {
-				errors.Append(microerror.Mask(err))
-				// do not return on error, try to continue deleting.
-				a.logger.Log("level", "error", "message", fmt.Sprintf("failed disabling stack protection %#q: %#v. Skipping deletion.", *stack.StackName, err), "stack", fmt.Sprintf("%#v", err))
-				continue
-			}
+		a.logger.Log("level", "debug", "message", fmt.Sprintf("disabling termination protection for stack %#q", *stack.StackName))
+		enableTerminationProtection := false
+		updateTerminationProtection := &cloudformation.UpdateTerminationProtectionInput{
+			EnableTerminationProtection: &enableTerminationProtection,
+			StackName:                   stack.StackName,
+		}
+		_, err = a.cfClient.UpdateTerminationProtection(updateTerminationProtection)
+		if err != nil {
+			errors.Append(microerror.Mask(err))
+			// do not return on error, try to continue deleting.
+			a.logger.Log("level", "error", "message", fmt.Sprintf("failed disabling termination protection for %#q: %#v. Skipping deletion.", *stack.StackName, err), "stack", fmt.Sprintf("%#v", err))
+			continue
 		}
 
 		deleteStackInput := &cloudformation.DeleteStackInput{
