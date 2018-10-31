@@ -59,7 +59,7 @@ jobs:
     - deploy:
         name: architect deploy (master only, except when in cronjob execution)
         command: |
-            if [ test -x ./architect && "${CIRCLE_BRANCH}" == "master" ]; then
+            if [ -x ./architect && "${CIRCLE_BRANCH}" == "master" ]; then
                 ./architect deploy
             fi
 
