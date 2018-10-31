@@ -71,7 +71,7 @@ workflows:
   cleanup:
     triggers:
       - schedule:
-          cron: "0 * * * *"
+          cron: "21 * * * *"
           filters:
             branches:
               only: master
