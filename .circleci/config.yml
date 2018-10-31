@@ -46,7 +46,7 @@ jobs:
     - run:
         name: Install architect (except when in cronjob execution)
         command: |
-            if [ "${CIRCLE_USERNAME}" == "" ]; then
+            if [ "${CIRCLE_USERNAME}" != "" ]; then
                 wget -q $(curl -sS -H "Authorization: token $RELEASE_TOKEN" https://api.github.com/repos/giantswarm/architect/releases/latest | grep browser_download_url | head -n 1 | cut -d '"' -f 4)
                 chmod +x ./architect
                 ./architect version
