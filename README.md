@@ -1,4 +1,5 @@
 [![CircleCI](https://circleci.com/gh/giantswarm/ci-cleaner/tree/master.svg?style=svg&circle-token=200804d99fdd5ee97482012f23d4470b62f8e34c)](https://circleci.com/gh/giantswarm/ci-cleaner/tree/master)
+[![Docker Repository on Quay](https://quay.io/repository/giantswarm/ci-cleaner/status "Docker Repository on Quay")](https://quay.io/repository/giantswarm/ci-cleaner)
 
 # CI Cleaner
 
