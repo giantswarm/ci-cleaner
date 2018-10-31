@@ -32,4 +32,5 @@ func init() {
 
 	RootCmd.AddCommand(AwsCmd)
 	RootCmd.AddCommand(AzureCmd)
+	RootCmd.AddCommand(VersionCmd)
 }
