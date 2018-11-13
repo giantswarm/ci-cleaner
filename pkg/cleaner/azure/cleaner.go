@@ -119,7 +119,13 @@ func (c *Cleaner) Clean(ctx context.Context) error {
 }
 
 func isCIResource(s string) bool {
-	return strings.HasPrefix(s, "ci-cur-") || strings.HasPrefix(s, "ci-wip-")
+	r := false
+	r = r || strings.HasPrefix(s, "ci-last-")
+	r = r || strings.HasPrefix(s, "ci-prev-")
+	r = r || strings.HasPrefix(s, "ci-cur-")
+	r = r || strings.HasPrefix(s, "ci-wip-")
+
+	return r
 }
 
 func isAnyEmpty(list []string) bool {
