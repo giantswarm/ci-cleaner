@@ -10,10 +10,9 @@ import (
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/aws/aws-sdk-go/service/route53"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/giantswarm/ci-cleaner/pkg/errorcollection"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-
-	"github.com/giantswarm/ci-cleaner/pkg/errorcollection"
 )
 
 type Config struct {
@@ -252,9 +251,10 @@ func bucketShouldBeDeleted(bucket *s3.Bucket) bool {
 	}
 
 	prefixes := []string{
+		"ci-last-",
+		"ci-prev-",
 		"ci-cur-",
 		"ci-wip-",
-		"ci-clop-",
 	}
 	for _, prefix := range prefixes {
 		if strings.HasPrefix(*bucket.Name, prefix) {
