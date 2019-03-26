@@ -7,7 +7,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
+	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/route53"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/giantswarm/ci-cleaner/pkg/errorcollection"
@@ -16,6 +18,7 @@ import (
 )
 
 type Config struct {
+	EC2Client     EC2Client
 	CFClient      CFClient
 	Logger        micrologger.Logger
 	Route53Client Route53Client
@@ -23,6 +26,7 @@ type Config struct {
 }
 
 type Cleaner struct {
+	ec2Client     EC2Client
 	cfClient      CFClient
 	logger        micrologger.Logger
 	route53Client Route53Client
@@ -30,6 +34,9 @@ type Cleaner struct {
 }
 
 func New(config *Config) (*Cleaner, error) {
+	if config.EC2Client == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ec2lient must not be empty", config)
+	}
 	if config.CFClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.CFClient must not be empty", config)
 	}
@@ -44,6 +51,7 @@ func New(config *Config) (*Cleaner, error) {
 	}
 
 	cleaner := &Cleaner{
+		ec2Client:     config.EC2Client,
 		cfClient:      config.CFClient,
 		logger:        config.Logger,
 		route53Client: config.Route53Client,
@@ -104,6 +112,11 @@ func (a *Cleaner) cleanStacks() error {
 		}
 
 		a.logger.Log("level", "info", "message", fmt.Sprintf("found that stack %#q should be deleted", *stack.StackName))
+
+		err = a.disableMasterTerminationProtection(*stack.StackName)
+		if err != nil {
+			return microerror.Mask(err)
+		}
 
 		a.logger.Log("level", "debug", "message", fmt.Sprintf("disabling termination protection for stack %#q", *stack.StackName))
 		enableTerminationProtection := false
@@ -314,5 +327,54 @@ func (a *Cleaner) deleteBucket(name *string) error {
 	if err != nil {
 		return microerror.Mask(err)
 	}
+	return nil
+}
+
+func (a *Cleaner) disableMasterTerminationProtection(stackName string) error {
+
+	a.logger.Log("level", "debug", "message", "disabling master instance termination protection")
+
+	i := &ec2.DescribeInstancesInput{
+		Filters: []*ec2.Filter{
+			{
+				Name: aws.String("tag:aws:cloudformation:stack-name"),
+				Values: []*string{
+					aws.String(stackName),
+				},
+			},
+		},
+	}
+	o, err := a.ec2Client.DescribeInstances(i)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	if len(o.Reservations) != 1 {
+		return microerror.Newf("expected one reservation for master instance, got %d", len(o.Reservations))
+	}
+
+	for _, reservation := range o.Reservations {
+
+		if len(reservation.Instances) != 1 {
+			return microerror.Newf("expected one master instance, got %d", len(reservation.Instances))
+		}
+
+		for _, instance := range reservation.Instances {
+			i := &ec2.ModifyInstanceAttributeInput{
+				DisableApiTermination: &ec2.AttributeBooleanValue{
+					Value: aws.Bool(false),
+				},
+				InstanceId: aws.String(*instance.InstanceId),
+			}
+
+			_, err = a.ec2Client.ModifyInstanceAttribute(i)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+		}
+	}
+
+	a.logger.Log("level", "debug", "message", "disabled master instance termination protection")
+
 	return nil
 }
