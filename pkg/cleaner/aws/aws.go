@@ -342,6 +342,12 @@ func (a *Cleaner) disableMasterTerminationProtection(stackName string) error {
 					aws.String(stackName),
 				},
 			},
+			{
+				Name: aws.String("tag:Name"),
+				Values: []*string{
+					aws.String("*-master"),
+				},
+			},
 		},
 	}
 	o, err := a.ec2Client.DescribeInstances(i)
