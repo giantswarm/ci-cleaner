@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/service/cloudformation"
+	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/route53"
 	"github.com/aws/aws-sdk-go/service/s3"
 )
@@ -13,6 +14,13 @@ const (
 	// remain up. CI resources older than gracePeriod will be deleted.
 	gracePeriod = 90 * time.Minute
 )
+
+// EC2Client describes the methods required to be implemented by a EC2
+// AWS client.
+type EC2Client interface {
+	DescribeInstances(*ec2.DescribeInstancesInput) (*ec2.DescribeInstancesOutput, error)
+	ModifyInstanceAttribute(*ec2.ModifyInstanceAttributeInput) (*ec2.ModifyInstanceAttributeOutput, error)
+}
 
 // CFClient describes the methods required to be implemented by a CloudFormation
 // AWS client.
