@@ -113,9 +113,13 @@ func (a *Cleaner) cleanStacks() error {
 
 		a.logger.Log("level", "info", "message", fmt.Sprintf("found that stack %#q should be deleted", *stack.StackName))
 
+		a.logger.Log("level", "debug", "message", fmt.Sprintf("disabling termination protection for EC2 instance belonging to the stack %#q", *stack.StackName))
 		err = a.disableMasterTerminationProtection(*stack.StackName)
 		if err != nil {
-			return microerror.Mask(err)
+			errors.Append(microerror.Mask(err))
+			// do not return on error, try to continue deleting.
+			a.logger.Log("level", "error", "message", fmt.Sprintf("failed disabling termination protection for EC2 instance belonging to the stack %#q: %#v. Skipping deletion.", *stack.StackName, err))
+			continue
 		}
 
 		a.logger.Log("level", "debug", "message", fmt.Sprintf("disabling termination protection for stack %#q", *stack.StackName))
@@ -128,7 +132,7 @@ func (a *Cleaner) cleanStacks() error {
 		if err != nil {
 			errors.Append(microerror.Mask(err))
 			// do not return on error, try to continue deleting.
-			a.logger.Log("level", "error", "message", fmt.Sprintf("failed disabling termination protection for %#q: %#v. Skipping deletion.", *stack.StackName, err), "stack", fmt.Sprintf("%#v", err))
+			a.logger.Log("level", "error", "message", fmt.Sprintf("failed disabling termination protection for %#q: %#v. Skipping deletion.", *stack.StackName, err))
 			continue
 		}
 
@@ -332,8 +336,6 @@ func (a *Cleaner) deleteBucket(name *string) error {
 
 func (a *Cleaner) disableMasterTerminationProtection(stackName string) error {
 
-	a.logger.Log("level", "debug", "message", "disabling master instance termination protection")
-
 	i := &ec2.DescribeInstancesInput{
 		Filters: []*ec2.Filter{
 			{
@@ -379,8 +381,6 @@ func (a *Cleaner) disableMasterTerminationProtection(stackName string) error {
 			}
 		}
 	}
-
-	a.logger.Log("level", "debug", "message", "disabled master instance termination protection")
 
 	return nil
 }
