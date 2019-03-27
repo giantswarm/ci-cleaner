@@ -34,11 +34,11 @@ type Cleaner struct {
 }
 
 func New(config *Config) (*Cleaner, error) {
-	if config.EC2Client == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.ec2lient must not be empty", config)
-	}
 	if config.CFClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.CFClient must not be empty", config)
+	}
+	if config.EC2Client == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ec2lient must not be empty", config)
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
