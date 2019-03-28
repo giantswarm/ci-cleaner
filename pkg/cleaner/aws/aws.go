@@ -113,7 +113,7 @@ func (a *Cleaner) cleanStacks() error {
 
 		a.logger.Log("level", "info", "message", fmt.Sprintf("found that stack %#q should be deleted", *stack.StackName))
 
-		if isGuestStack(stack) {
+		if isTenantStack(stack) {
 			a.logger.Log("level", "debug", "message", fmt.Sprintf("disabling termination protection for EC2 instance belonging to the stack %#q", *stack.StackName))
 			err = a.disableMasterTerminationProtection(*stack.StackName)
 			if err != nil {
@@ -255,7 +255,7 @@ func stackShouldBeDeleted(stack *cloudformation.Stack) bool {
 	return false
 }
 
-func isGuestStack(stack *cloudformation.Stack) bool {
+func isTenantStack(stack *cloudformation.Stack) bool {
 	outputs := stack.Outputs
 	for _, o := range outputs {
 		if *o.OutputKey == "MasterImageID" {
