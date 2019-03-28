@@ -113,13 +113,15 @@ func (a *Cleaner) cleanStacks() error {
 
 		a.logger.Log("level", "info", "message", fmt.Sprintf("found that stack %#q should be deleted", *stack.StackName))
 
-		a.logger.Log("level", "debug", "message", fmt.Sprintf("disabling termination protection for EC2 instance belonging to the stack %#q", *stack.StackName))
-		err = a.disableMasterTerminationProtection(*stack.StackName)
-		if err != nil {
-			errors.Append(microerror.Mask(err))
-			// do not return on error, try to continue deleting.
-			a.logger.Log("level", "error", "message", fmt.Sprintf("failed disabling termination protection for EC2 instance belonging to the stack %#q: %#v. Skipping deletion.", *stack.StackName, err))
-			continue
+		if isTenantStack(stack) {
+			a.logger.Log("level", "debug", "message", fmt.Sprintf("disabling termination protection for EC2 instance belonging to the stack %#q", *stack.StackName))
+			err = a.disableMasterTerminationProtection(*stack.StackName)
+			if err != nil {
+				errors.Append(microerror.Mask(err))
+				// do not return on error, try to continue deleting.
+				a.logger.Log("level", "error", "message", fmt.Sprintf("failed disabling termination protection for EC2 instance belonging to the stack %#q: %#v. Skipping deletion.", *stack.StackName, err))
+				continue
+			}
 		}
 
 		a.logger.Log("level", "debug", "message", fmt.Sprintf("disabling termination protection for stack %#q", *stack.StackName))
@@ -253,6 +255,17 @@ func stackShouldBeDeleted(stack *cloudformation.Stack) bool {
 	return false
 }
 
+func isTenantStack(stack *cloudformation.Stack) bool {
+	outputs := stack.Outputs
+	for _, o := range outputs {
+		if *o.OutputKey == "MasterImageID" {
+			return true
+		}
+	}
+
+	return false
+}
+
 func bucketShouldBeDeleted(bucket *s3.Bucket) bool {
 	if bucket.CreationDate == nil {
 		// bad formed bucket, should be deleted
@@ -358,13 +371,13 @@ func (a *Cleaner) disableMasterTerminationProtection(stackName string) error {
 	}
 
 	if len(o.Reservations) != 1 {
-		return microerror.Newf("expected one reservation for master instance, got %d", len(o.Reservations))
+		return microerror.Newf("Expected one reservation for master instance, got %d", len(o.Reservations))
 	}
 
 	for _, reservation := range o.Reservations {
 
 		if len(reservation.Instances) != 1 {
-			return microerror.Newf("expected one master instance, got %d", len(reservation.Instances))
+			return microerror.Newf("Expected one master instance, got %d", len(reservation.Instances))
 		}
 
 		for _, instance := range reservation.Instances {
