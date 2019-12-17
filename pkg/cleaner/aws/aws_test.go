@@ -193,22 +193,6 @@ func TestBucketShouldBeDeleted(t *testing.T) {
 			expected: true,
 		},
 		{
-			description: "old ci clop bucket should be deleted",
-			bucket: &s3.Bucket{
-				Name:         aws.String("270935918670-g8s-ci-clop-50a83-d4f51"),
-				CreationDate: aws.Time(time.Now().Add(-2 * time.Hour)),
-			},
-			expected: true,
-		},
-		{
-			description: "old ci clop log bucket should be deleted",
-			bucket: &s3.Bucket{
-				Name:         aws.String("ci-clop-ac84b-7a52e-g8s-access-logs"),
-				CreationDate: aws.Time(time.Now().Add(-2 * time.Hour)),
-			},
-			expected: true,
-		},
-		{
 			description: "recent general bucket should not be deleted",
 			bucket: &s3.Bucket{
 				Name:         aws.String("270935918670-g8s-84ar8-ci-5555-clop-blabla"),
