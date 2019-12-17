@@ -370,7 +370,7 @@ func (a *Cleaner) disableMasterTerminationProtection(stackName string) error {
 		return microerror.Mask(err)
 	}
 
-	if len(o.Reservations) != 1 {
+	if len(o.Reservations) > 1 {
 		return microerror.Newf("Expected one reservation for master instance, got %d", len(o.Reservations))
 	}
 
