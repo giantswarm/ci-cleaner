@@ -3,6 +3,7 @@ package aws
 import (
 	"fmt"
 	"reflect"
+	"regexp"
 	"runtime"
 	"strings"
 	"time"
@@ -245,6 +246,7 @@ func stackShouldBeDeleted(stack *cloudformation.Stack) bool {
 		"cluster-ci-",
 		"host-peer-ci-",
 		"e2e-",
+		"ci-",
 	}
 	for _, prefix := range prefixes {
 		if strings.HasPrefix(*stack.StackName, prefix) {
@@ -280,24 +282,20 @@ func bucketShouldBeDeleted(bucket *s3.Bucket) bool {
 		return false
 	}
 
-	prefixes := []string{
-		"ci-last-",
-		"ci-prev-",
-		"ci-cur-",
-		"ci-wip-",
+	patterns := []string{
+		`\Aci-last-.*`,
+		`\Aci-prev-.*`,
+		`\Aci-cur-.*`,
+		`\Aci-wip-.*`,
+		`g8s-ci-cur-.*`,
+		`g8s-ci-wip-.*`,
+		`g8s-ci-clop-.*`,
+		`\Aci-.*-g8s-access-logs\z`,
+		`.*-g8s-ci-.*`,
 	}
-	for _, prefix := range prefixes {
-		if strings.HasPrefix(*bucket.Name, prefix) {
-			return true
-		}
-	}
-	substrings := []string{
-		"g8s-ci-cur-",
-		"g8s-ci-wip-",
-		"g8s-ci-clop-",
-	}
-	for _, substring := range substrings {
-		if strings.Contains(*bucket.Name, substring) {
+	for _, pattern := range patterns {
+		matches, _ := regexp.MatchString(pattern, *bucket.Name)
+		if matches {
 			return true
 		}
 	}
