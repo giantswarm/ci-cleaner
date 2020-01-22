@@ -78,6 +78,24 @@ func TestStackShouldBeDeleted(t *testing.T) {
 			expected: true,
 		},
 		{
+			description: "recent aws ci stack should not be deleted",
+			stack: &cloudformation.Stack{
+				StackName:    aws.String("ci-aws-blabla123"),
+				CreationTime: aws.Time(time.Now()),
+				StackStatus:  aws.String("FOO_STATUS"),
+			},
+			expected: false,
+		},
+		{
+			description: "old aws ci stack should be deleted",
+			stack: &cloudformation.Stack{
+				StackName:    aws.String("ci-aws-blabla456"),
+				CreationTime: aws.Time(time.Now().Add(-2 * time.Hour)),
+				StackStatus:  aws.String("FOO_STATUS"),
+			},
+			expected: true,
+		},
+		{
 			description: "stack that is already being deleted",
 			stack: &cloudformation.Stack{
 				StackName:    aws.String("e2e-blabla"),
@@ -207,6 +225,38 @@ func TestBucketShouldBeDeleted(t *testing.T) {
 				CreationDate: aws.Time(time.Now().Add(-2 * time.Hour)),
 			},
 			expected: false,
+		},
+		{
+			description: "recent g8s log bucket should not be deleted",
+			bucket: &s3.Bucket{
+				Name:         aws.String("ci-blablabla-g8s-access-logs"),
+				CreationDate: aws.Time(time.Now()),
+			},
+			expected: false,
+		},
+		{
+			description: "old g8s log bucket should be deleted",
+			bucket: &s3.Bucket{
+				Name:         aws.String("ci-blablabla2345-g8s-access-logs"),
+				CreationDate: aws.Time(time.Now().Add(-2 * time.Hour)),
+			},
+			expected: true,
+		},
+		{
+			description: "recent g8s ci bucket should not be deleted",
+			bucket: &s3.Bucket{
+				Name:         aws.String("blablabla2345-g8s-ci-blabla678"),
+				CreationDate: aws.Time(time.Now()),
+			},
+			expected: false,
+		},
+		{
+			description: "old g8s ci bucket should be deleted",
+			bucket: &s3.Bucket{
+				Name:         aws.String("blablabla2345-g8s-ci-blabla678"),
+				CreationDate: aws.Time(time.Now().Add(-2 * time.Hour)),
+			},
+			expected: true,
 		},
 	}
 
