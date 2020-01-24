@@ -41,4 +41,5 @@ type S3Client interface {
 	DeleteBucket(*s3.DeleteBucketInput) (*s3.DeleteBucketOutput, error)
 	ListObjectsV2(*s3.ListObjectsV2Input) (*s3.ListObjectsV2Output, error)
 	DeleteObject(*s3.DeleteObjectInput) (*s3.DeleteObjectOutput, error)
+	DeleteObjects(*s3.DeleteObjectsInput) (*s3.DeleteObjectsOutput, error)
 }
