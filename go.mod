@@ -3,7 +3,7 @@ module github.com/giantswarm/ci-cleaner
 go 1.13
 
 require (
-	github.com/Azure/azure-sdk-for-go v19.1.0+incompatible
+	github.com/Azure/azure-sdk-for-go v19.2.0+incompatible
 	github.com/Azure/go-autorest v10.15.5+incompatible
 	github.com/aws/aws-sdk-go v1.19.2
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
