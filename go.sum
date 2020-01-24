@@ -1,5 +1,7 @@
 github.com/Azure/azure-sdk-for-go v19.1.0+incompatible h1:ysqLW+tqZjJWOTE74heH/pDRbr4vlN3yV+dqQYgpyxw=
 github.com/Azure/azure-sdk-for-go v19.1.0+incompatible/go.mod h1:9XXNKU+eRnpl9moKnB4QOLf1HestfXbmab5FXxiDBjc=
+github.com/Azure/azure-sdk-for-go v19.2.0+incompatible h1:LN+e4Zrc50LEnB5QKdQjWX9JhZgV9VZVBfLrdc8/wv4=
+github.com/Azure/azure-sdk-for-go v19.2.0+incompatible/go.mod h1:9XXNKU+eRnpl9moKnB4QOLf1HestfXbmab5FXxiDBjc=
 github.com/Azure/go-autorest v10.15.5+incompatible h1:vdxx6wM1rVkKt/3niByPVjguoLWkWImOcJNvEykgBzY=
 github.com/Azure/go-autorest v10.15.5+incompatible/go.mod h1:r+4oMnoxhatjLLJ6zxSWATqVooLgysK6ZNox3g/xq24=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
