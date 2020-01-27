@@ -320,15 +320,24 @@ func (a *Cleaner) deleteBucket(name *string) error {
 			break
 		}
 
+		//batch up the objects for deletion
+		var objects []*s3.ObjectIdentifier
 		for _, o := range o.Contents {
-			i := &s3.DeleteObjectInput{
-				Bucket: name,
-				Key:    o.Key,
-			}
-			_, err := a.s3Client.DeleteObject(i)
-			if err != nil {
-				return microerror.Mask(err)
-			}
+			objects = append(objects, &s3.ObjectIdentifier{
+				Key: o.Key,
+			})
+		}
+		di := &s3.DeleteObjectsInput{
+			Bucket: name,
+			Delete: &s3.Delete{
+				Objects: objects,
+				Quiet:   aws.Bool(true),
+			},
+		}
+		//delete the batch
+		_, err = a.s3Client.DeleteObjects(di)
+		if err != nil {
+			return microerror.Mask(err)
 		}
 
 		if !repeat {
