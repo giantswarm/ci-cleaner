@@ -3,11 +3,12 @@ package azure
 import (
 	"context"
 	"fmt"
-	"github.com/Azure/azure-sdk-for-go/services/dns/mgmt/2017-10-01/dns"
-	"github.com/giantswarm/microerror"
 	"net"
 	"strings"
 	"time"
+
+	"github.com/Azure/azure-sdk-for-go/services/dns/mgmt/2017-10-01/dns"
+	"github.com/giantswarm/microerror"
 )
 
 const (
