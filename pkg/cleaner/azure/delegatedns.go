@@ -43,6 +43,7 @@ func (c Cleaner) cleanDelegateDNSRecords(ctx context.Context) error {
 			c.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("DNS record %s has to be deleted", *record.Name))
 			err := c.deleteRecord(ctx, record)
 			if err != nil {
+				c.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("failed to delete DNS record %q", *record.Name), "stack", fmt.Sprintf("%#v", microerror.Mask(err)))
 				c.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("failed to check DNS record %q", *record.Name), "stack", fmt.Sprintf("%#v", microerror.Mask(err)))
 				c.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("failed to delete DNS record %q", *record.Name), "stack", fmt.Sprintf("%#v", microerror.Mask(err)))
 				c.logger.LogCtx(ctx, "level", "error", "message", "skipping")
