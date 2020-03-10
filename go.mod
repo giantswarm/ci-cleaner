@@ -6,6 +6,7 @@ require (
 	github.com/Azure/azure-sdk-for-go v19.2.0+incompatible
 	github.com/Azure/go-autorest v10.15.5+incompatible
 	github.com/aws/aws-sdk-go v1.28.9
+	github.com/bogdanovich/dns_resolver v0.0.0-20170211073258-a8e42bc6a5b6
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/giantswarm/microerror v0.0.0-20181001144842-3bc3cb1a3670
 	github.com/giantswarm/micrologger v0.0.0-20181005142804-22dc3b5565d1
@@ -15,6 +16,7 @@ require (
 	github.com/juju/errgo v0.0.0-20140925100237-08cceb5d0b53 // indirect
 	github.com/kr/logfmt v0.0.0-20140226030751-b84e30acd515 // indirect
 	github.com/kr/pretty v0.2.0 // indirect
+	github.com/miekg/dns v1.1.27 // indirect
 	github.com/spf13/cobra v0.0.5
 	github.com/stretchr/testify v1.4.0 // indirect
 	golang.org/x/net v0.0.0-20200114155413-6afb5195e5aa // indirect

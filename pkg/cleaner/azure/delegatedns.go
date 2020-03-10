@@ -3,16 +3,17 @@ package azure
 import (
 	"context"
 	"fmt"
-	"net"
 	"strings"
 	"time"
 
 	"github.com/Azure/azure-sdk-for-go/services/dns/mgmt/2017-10-01/dns"
+	"github.com/bogdanovich/dns_resolver"
 	"github.com/giantswarm/microerror"
 )
 
 const (
-	dnsFailureError    = "Temporary failure in name resolution"
+	dnsFailureError    = "SERVFAIL"
+	dnsServerAddress   = "8.8.8.8"
 	e2eterraformPrefix = "e2eterraform"
 	resourceGroup      = "root_dns_zone_rg"
 	zoneName           = "azure.gigantic.io"
@@ -92,8 +93,12 @@ func isTerraformCIRecord(s string) bool {
 func resolvesApiName(name string) (bool, error) {
 	full := fmt.Sprintf("api.%s.%s", name, zoneName)
 
-	addresses, err := net.LookupHost(full)
+	resolver := dns_resolver.New([]string{dnsServerAddress})
 
+	// In case of i/o timeout
+	resolver.RetryTimes = 5
+
+	addresses, err := resolver.LookupHost(full)
 	if err != nil {
 		if !strings.Contains(err.Error(), dnsFailureError) {
 			return false, err
