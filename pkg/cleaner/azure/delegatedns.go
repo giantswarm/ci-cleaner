@@ -76,7 +76,7 @@ func (c Cleaner) dnsRecordShouldBeDeleted(ctx context.Context, dnsRecord dns.Rec
 
 	resolves, err := resolvesApiName(*dnsRecord.Name)
 	if err != nil {
-		c.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("Unexpected error when trying to resolve %s: %s", dnsRecord.Name, err.Error()))
+		c.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("Unexpected error when trying to resolve %s: %s", *dnsRecord.Name, err.Error()))
 		return false, nil
 	}
 
@@ -95,7 +95,6 @@ func resolvesApiName(name string) (bool, error) {
 	addresses, err := net.LookupHost(full)
 
 	if err != nil {
-		fmt.Printf(err.Error())
 		if !strings.Contains(err.Error(), dnsFailureError) {
 			return false, err
 		}
