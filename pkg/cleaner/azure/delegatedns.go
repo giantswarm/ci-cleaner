@@ -3,6 +3,7 @@ package azure
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 
@@ -71,7 +72,7 @@ func (c Cleaner) deleteRecord(ctx context.Context, dnsRecord dns.RecordSet) erro
 }
 
 func (c Cleaner) dnsRecordShouldBeDeleted(ctx context.Context, dnsRecord dns.RecordSet, since time.Time) (bool, error) {
-	if !isTerraformCIRecord(*dnsRecord.Name) {
+	if !isCIRecord(*dnsRecord.Name) {
 		return false, nil
 	}
 
@@ -84,9 +85,17 @@ func (c Cleaner) dnsRecordShouldBeDeleted(ctx context.Context, dnsRecord dns.Rec
 	return !resolves, nil
 }
 
-// isTerraformCIResourceGroup checks if resource group name was created by Terraform CI.
-func isTerraformCIRecord(s string) bool {
-	return strings.HasPrefix(s, e2eterraformPrefix)
+// isCIRecord checks if resource group name was created by a CI pipeline.
+func isCIRecord(s string) bool {
+	if strings.HasPrefix(s, e2eterraformPrefix) {
+		return true
+	}
+
+	// Match strings like:
+	// e2eabcd.westeurope
+	re := regexp.MustCompile(`^e2e.*\.(westeurope|germanywestcentral)$`)
+
+	return re.Match([]byte(s))
 }
 
 // Tries to resolve the API hostname on the specified delegated zone.
