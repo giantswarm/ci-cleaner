@@ -17,7 +17,7 @@ require (
 	github.com/kr/logfmt v0.0.0-20140226030751-b84e30acd515 // indirect
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/miekg/dns v1.1.27 // indirect
-	github.com/spf13/cobra v0.0.5
+	github.com/spf13/cobra v0.0.7
 	github.com/stretchr/testify v1.4.0 // indirect
 	golang.org/x/net v0.0.0-20200114155413-6afb5195e5aa // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
