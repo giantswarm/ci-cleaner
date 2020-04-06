@@ -5,7 +5,7 @@ go 1.13
 require (
 	github.com/Azure/azure-sdk-for-go v19.2.0+incompatible
 	github.com/Azure/go-autorest v10.15.5+incompatible
-	github.com/aws/aws-sdk-go v1.28.9
+	github.com/aws/aws-sdk-go v1.30.4
 	github.com/bogdanovich/dns_resolver v0.0.0-20170211073258-a8e42bc6a5b6
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/giantswarm/microerror v0.0.0-20181001144842-3bc3cb1a3670
