@@ -90,12 +90,12 @@ workflows:
     - build
 
   cleanup:
-    triggers:
-      - schedule:
-          cron: "21 * * * *"
-          filters:
-            branches:
-              only: master
+#    triggers:
+#      - schedule:
+#          cron: "21 * * * *"
+#          filters:
+#            branches:
+#              only: master
 
     jobs:
     - build
